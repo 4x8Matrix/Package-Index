@@ -1,8 +1,72 @@
 {
 	"version": "2.0.0",
-	"tasks": [
+	"inputs": [
 		{
-			"label": "[⚒️ - Lune]: Setup Lune LSP Environment",
+			"id": "ProjectName",
+			"description": "the project name",
+			"default": "",
+			"type": "promptString"
+		},
+		{
+			"id": "ProjectBuild",
+			"description": "the project *.project.json map",
+			"default": "development",
+			"type": "promptString"
+		}
+	],
+	"tasks": [
+		// Repository Setup
+		{
+			"label": "[🚀 - Lune]: Setup Lune LSP Environment",
+			"type": "shell",
+			"command": "lune --setup",
+			"group": { "kind": "build" }
+		},
+
+		{
+			"label": "[🚀 - Rojo]: Update project sourcemap",
+			"type": "shell",
+			"command": "rojo sourcemap development.project.json --output sourcemap.json && wally-package-types --sourcemap sourcemap.json Packages/",
+			"group": { "kind": "build" },
+			"options": { "cwd": "Modules/${input:ProjectName}" }
+		},
+
+		// Project Development
+		{
+			"label": "[🎈 - Rojo]: Start Rojo Server for a Project",
+			"type": "shell",
+			"command": "rojo serve ${input:ProjectBuild}.project.json",
+			"group": { "kind": "build" },
+			"options": { "cwd": "Modules/${input:ProjectName}" }
+		},
+
+		{
+			"label": "[🎈 - Rojo]: Build Project into Roblox Place",
+			"type": "shell",
+			"command": "rojo build ${input:ProjectBuild}.project.json -o ${input:ProjectName}-Build.rbxl",
+			"group": { "kind": "build" },
+			"options": { "cwd": "Modules/${input:ProjectName}" }
+		},
+
+		{
+			"label": "[🎈 - Wally]: Build Project packages",
+			"type": "shell",
+			"command": "wally install",
+			"group": { "kind": "build" },
+			"options": { "cwd": "Modules/${input:ProjectName}" }
+		},
+
+		// CI Steps
+		{
+			"label": "[🚨 - Selene]: Selene Lint a project",
+			"type": "shell",
+			"command": "selene Source",
+			"group": { "kind": "build" },
+			"options": { "cwd": "Modules/${input:ProjectName}" }
+		},
+
+		{
+			"label": "[🚨 - Moonwave]: Build documentation site",
 			"type": "shell",
 			"command": "lune --setup",
 			"group": { "kind": "build" }

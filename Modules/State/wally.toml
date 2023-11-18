@@ -1,0 +1,19 @@
+[package]
+name = "4x8matrix/state"
+version = "1.2.0"
+realm = "shared"
+registry = "https://github.com/upliftgames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = "A simple module to wrap around any datatype & provide an interface for manipulating that value."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json"]
+
+[dev-dependencies]
+TestEz = "roblox/testez@0.4.1"
+EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
+
+[dependencies]
+Signal = "sleitnick/signal@1.5.0"

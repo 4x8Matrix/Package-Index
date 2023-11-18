@@ -4,7 +4,6 @@
 # To add a new tool, add an entry to this table.
 
 [tools]
-luaulsp = "JohnnyMorganz/luau-lsp@1.24.1"
-lune = "filiptibell/lune@0.7.11"
-moonwave = "evaera/moonwave@1.1.1"
-wally-package-types = "JohnnyMorganz/wally-package-types@1.2.1"
+rojo = "rojo-rbx/rojo@7.3.0"
+selene = "Kampfkarren/selene@0.25.0"
+wally = "UpliftGames/wally@0.3.2"
