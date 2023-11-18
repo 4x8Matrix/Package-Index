@@ -1,0 +1,18 @@
+[package]
+name = "4x8matrix/project"
+version = "1.0.0"
+realm = "shared"
+registry = "https://github.com/Roblox-Devs-Dubit/wally-index"
+licence = ""
+authors = []
+
+description = ""
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json"]
+
+[dev-dependencies]
+TestEz = "roblox/testez@0.4.1"
+EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
+
+[dependencies]
