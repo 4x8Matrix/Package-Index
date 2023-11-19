@@ -1,0 +1,19 @@
+[package]
+name = "4x8matrix/camera-profiler"
+version = "1.0.5"
+realm = "shared"
+registry = "https://github.com/upliftgames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = "A simple OOP module to allow developers to create camera profiles."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json"]
+
+[dev-dependencies]
+TestEz = "roblox/testez@0.4.1"
+EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
+
+[dependencies]
+Signal = "sleitnick/signal@1.5.0"
