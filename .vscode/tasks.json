@@ -70,6 +70,6 @@
 			"type": "shell",
 			"command": "lune --setup",
 			"group": { "kind": "build" }
-		},
+		}
 	]
 }
