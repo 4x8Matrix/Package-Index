@@ -1,0 +1,12 @@
+[package]
+name = "4x8matrix/emoticon-reporter"
+version = "1.0.0"
+realm = "shared"
+registry = "https://github.com/upliftgames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = "A simple TestEz reporter that brings in QoL fixes."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json"]
