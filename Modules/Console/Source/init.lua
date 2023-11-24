@@ -12,23 +12,27 @@ local DEFAULT_LOGGING_SCHEMA = "[%s][%s] :: %s"
 local MAXIMUM_CACHED_LOGS = 500
 local PRETTY_TABLE_TAB = string.rep("\t", (RunService:IsStudio() and 1) or 5)
 
--- // Module
-local Logger = { }
+--[=[
+	@class Console
 
-Logger.Type = "Logger"
+	Console class description
+]=]
+local Console = { }
 
-Logger.LogLevel = 1
-Logger.Schema = DEFAULT_LOGGING_SCHEMA
+Console.Type = "Console"
 
-Logger.Cache = setmetatable({}, { __mode = "kv" })
+Console.LogLevel = 1
+Console.Schema = DEFAULT_LOGGING_SCHEMA
 
-Logger.Functions = { }
-Logger.Interface = { }
-Logger.Instances = { }
-Logger.Prototype = { }
+Console.Cache = setmetatable({}, { __mode = "kv" })
 
-Logger.Interface.onMessageOut = Signal.new()
-Logger.Interface.LogLevel = {
+Console.Functions = { }
+Console.Interface = { }
+Console.Instances = { }
+Console.Prototype = { }
+
+Console.Interface.onMessageOut = Signal.new()
+Console.Interface.LogLevel = {
 	["Debug"] = 1,
 	["Log"] = 2,
 	["Warn"] = 3,
@@ -37,7 +41,7 @@ Logger.Interface.LogLevel = {
 }
 
 -- // QoL functions
-function Logger.Functions:AddScopeToString(string)
+function Console.Functions:AddScopeToString(string)
 	local stringSplit = string.split(string, "\n")
 
 	for index, value in stringSplit do
@@ -51,19 +55,19 @@ function Logger.Functions:AddScopeToString(string)
 	return table.concat(stringSplit, "\n")
 end
 
-function Logger.Functions:ToPrettyString(...)
+function Console.Functions:ToPrettyString(...)
 	local stringifiedObjects = { }
 
 	for _, object in { ... } do
 		local objectType = typeof(object)
 
 		if objectType == "table" then
-			if Logger.Cache[object] then
+			if Console.Cache[object] then
 				table.insert(stringifiedObjects, `RecursiveTable<{tostring(object)}>`)
 
 				continue
 			else
-				Logger.Cache[object] = true
+				Console.Cache[object] = true
 			end
 
 			local tableSchema = "{\n"
@@ -94,7 +98,7 @@ function Logger.Functions:ToPrettyString(...)
 	return table.concat(stringifiedObjects, " ")
 end
 
-function Logger.Functions:FormatVaradicArguments(...)
+function Console.Functions:FormatVaradicArguments(...)
 	local args = { ... }
 
 	local message = string.rep("%s ", #args)
@@ -108,7 +112,7 @@ function Logger.Functions:FormatVaradicArguments(...)
 		args[index] = self:ToPrettyString(value)
 	end
 
-	table.clear(Logger.Cache)
+	table.clear(Console.Cache)
 
 	return string.format(
 		message,
@@ -116,7 +120,7 @@ function Logger.Functions:FormatVaradicArguments(...)
 	)
 end
 
-function Logger.Functions:FormatMessageSchema(schema: string, source: string, ...)
+function Console.Functions:FormatMessageSchema(schema: string, source: string, ...)
 	source = source or debug.info(2, "s")
 
 	return string.format(
@@ -126,23 +130,23 @@ end
 
 -- // Prototype functions
 --[[
-	Assertions, however written through our logger, if the condition isn't met, the logger will call :error on itself with the given message.
+	Assertions, however written through our Console, if the condition isn't met, the Console will call :error on itself with the given message.
 
 	### Parameters
 	- **condition**: *the condition we are going to validate*
-	- **...**: *anything, Logger is equipped to parse & display all types.*
+	- **...**: *anything, Console is equipped to parse & display all types.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Assert(1 == 1, "Hello, World!") -- > will output: nothing
-		Logger:Assert(1 == 2, "Hello, World!") -- > will output: [Logger][error]: "Hello, World!" <stack attached>
+		Console:Assert(1 == 1, "Hello, World!") -- > will output: nothing
+		Console:Assert(1 == 2, "Hello, World!") -- > will output: [Console][error]: "Hello, World!" <stack attached>
 	```
 ]]
-function Logger.Prototype:Assert(condition, ...): ()
+function Console.Prototype:Assert(condition, ...): ()
 	if not condition then
 		self:Error(...)
 	end
@@ -152,32 +156,32 @@ end
 	Create a new log for 'critical', critical being deployed in a situation where something has gone terribly wrong.
 
 	### Parameters
-	- **...**: *anything, Logger is equipped to parse & display all types.*
+	- **...**: *anything, Console is equipped to parse & display all types.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Critical("Hello, World!") -- > will output: [Logger][critical]: "Hello, World!" <stack attached>
+		Console:Critical("Hello, World!") -- > will output: [Console][critical]: "Hello, World!" <stack attached>
 	```
 ]]
-function Logger.Prototype:Critical(...): ()
-	local outputMessage = Logger.Functions:FormatMessageSchema(self.schema or Logger.Schema, self.id, "critical", Logger.Functions:FormatVaradicArguments(...))
+function Console.Prototype:Critical(...): ()
+	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "critical", Console.Functions:FormatVaradicArguments(...))
 
 	table.insert(self.logs, 1, { "critical", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Logger.Interface.LogLevel.Critical or Logger.LogLevel > Logger.Interface.LogLevel.Critical then
+	if self.level > Console.Interface.LogLevel.Critical or Console.LogLevel > Console.Interface.LogLevel.Critical then
 		task.cancel(coroutine.running())
 
 		return
 	end
 
-	Logger.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
+	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
 	error(outputMessage, 2)
 end
@@ -186,32 +190,32 @@ end
 	Create a new log for 'error', this is for errors raised through a developers code on purpose.
 
 	### Parameters
-	- **...**: *anything, Logger is equipped to parse & display all types.*
+	- **...**: *anything, Console is equipped to parse & display all types.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Error("Hello, World!") -- > will output: [Logger][error]: "Hello, World!" <stack attached>
+		Console:Error("Hello, World!") -- > will output: [Console][error]: "Hello, World!" <stack attached>
 	```
 ]]
-function Logger.Prototype:Error(...): ()
-	local outputMessage = Logger.Functions:FormatMessageSchema(self.schema or Logger.Schema, self.id, "error", Logger.Functions:FormatVaradicArguments(...))
+function Console.Prototype:Error(...): ()
+	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "error", Console.Functions:FormatVaradicArguments(...))
 
 	table.insert(self.logs, 1, { "error", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Logger.Interface.LogLevel.Error or Logger.LogLevel > Logger.Interface.LogLevel.Error then
+	if self.level > Console.Interface.LogLevel.Error or Console.LogLevel > Console.Interface.LogLevel.Error then
 		task.cancel(coroutine.running())
 
 		return
 	end
 
-	Logger.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
+	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
 	error(outputMessage, 2)
 end
@@ -220,30 +224,30 @@ end
 	Create a new log for 'warn', this is for informing developers about something which takes precedence over a log
 
 	### Parameters
-	- **...**: *anything, Logger is equipped to parse & display all types.*
+	- **...**: *anything, Console is equipped to parse & display all types.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Warn("Hello, World!") -- > will output: [Logger][warn]: "Hello, World!"
+		Console:Warn("Hello, World!") -- > will output: [Console][warn]: "Hello, World!"
 	```
 ]]
-function Logger.Prototype:Warn(...): ()
-	local outputMessage = Logger.Functions:FormatMessageSchema(self.schema or Logger.Schema, self.id, "warn", Logger.Functions:FormatVaradicArguments(...))
+function Console.Prototype:Warn(...): ()
+	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "warn", Console.Functions:FormatVaradicArguments(...))
 
 	table.insert(self.logs, 1, { "warn", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Logger.Interface.LogLevel.Warn or Logger.LogLevel > Logger.Interface.LogLevel.Warn then
+	if self.level > Console.Interface.LogLevel.Warn or Console.LogLevel > Console.Interface.LogLevel.Warn then
 		return
 	end
 
-	Logger.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
+	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
 	warn(outputMessage)
 end
@@ -252,30 +256,30 @@ end
 	Create a new log for 'log', this is for general logging - ideally what we would use in-place of print.
 
 	### Parameters
-	- **...**: *anything, Logger is equipped to parse & display all types.*
+	- **...**: *anything, Console is equipped to parse & display all types.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Log("Hello, World!") -- > will output: [Logger][log]: "Hello, World!"
+		Console:Log("Hello, World!") -- > will output: [Console][log]: "Hello, World!"
 	```
 ]]
-function Logger.Prototype:Log(...): ()
-	local outputMessage = Logger.Functions:FormatMessageSchema(self.schema or Logger.Schema, self.id, "log", Logger.Functions:FormatVaradicArguments(...))
+function Console.Prototype:Log(...): ()
+	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "log", Console.Functions:FormatVaradicArguments(...))
 
 	table.insert(self.logs, 1, { "log", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Logger.Interface.LogLevel.Log or Logger.LogLevel > Logger.Interface.LogLevel.Log then
+	if self.level > Console.Interface.LogLevel.Log or Console.LogLevel > Console.Interface.LogLevel.Log then
 		return
 	end
 
-	Logger.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
+	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
 	print(outputMessage)
 end
@@ -284,112 +288,112 @@ end
 	Create a new log for 'debug', typically we should only use 'debug' when debugging code or leaving hints for developers.
 
 	### Parameters
-	- **...**: *anything, Logger is equipped to parse & display all types.*
+	- **...**: *anything, Console is equipped to parse & display all types.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Debug("Hello, World!") -- > will output: [Logger][debug]: "Hello, World!"
+		Console:Debug("Hello, World!") -- > will output: [Console][debug]: "Hello, World!"
 	```
 ]]
-function Logger.Prototype:Debug(...): ()
-	local outputMessage = Logger.Functions:FormatMessageSchema(self.schema or Logger.Schema, self.id, "debug", Logger.Functions:FormatVaradicArguments(...))
+function Console.Prototype:Debug(...): ()
+	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "debug", Console.Functions:FormatVaradicArguments(...))
 
 	table.insert(self.logs, 1, { "debug", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Logger.Interface.LogLevel.Debug or Logger.LogLevel > Logger.Interface.LogLevel.Debug then
+	if self.level > Console.Interface.LogLevel.Debug or Console.LogLevel > Console.Interface.LogLevel.Debug then
 		return
 	end
 
-	Logger.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
+	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
 	print(outputMessage)
 end
 
 --[[
-	Set an log level for this logger, log levels assigned per logger override the global log level.
+	Set an log level for this Console, log levels assigned per Console override the global log level.
 
 	### Parameters
 	- **logLevel**: *The logLevel priority you only want to show in output*
-		* *Log Levels are exposed through `Logger.LogLevel`*
+		* *Log Levels are exposed through `Console.LogLevel`*
 
 	### Returns
-	- **Array**: *The array of logs created from this logger*
+	- **Array**: *The array of logs created from this Console*
 
 	---
 	Example:
 
 	```lua
-		local Logger = LoggerModule.new("Logger")
+		local Console = ConsoleModule.new("Console")
 
-		LoggerModule.setGlobalLogLevel(Logger.LogLevel.Warn)
+		ConsoleModule.setGlobalLogLevel(Console.LogLevel.Warn)
 
-		Logger:Log("Hello, World!") -- this will NOT output anything
-		Logger:Warn("Hello, World!") -- this will output something
+		Console:Log("Hello, World!") -- this will NOT output anything
+		Console:Warn("Hello, World!") -- this will output something
 
-		Logger:SetLogLevel(Logger.LogLevel.Log)
+		Console:SetLogLevel(Console.LogLevel.Log)
 
-		Logger:Log("Hello, World!") -- this will output something
-		Logger:Warn("Hello, World!") -- this will output something
+		Console:Log("Hello, World!") -- this will output something
+		Console:Warn("Hello, World!") -- this will output something
 	```
 ]]
-function Logger.Prototype:SetLogLevel(logLevel: number): ()
+function Console.Prototype:SetLogLevel(logLevel: number): ()
 	self.level = logLevel
 end
 
 --[[
-	Sets the state of the logger, state depicts if the logger can log messages into the output.
+	Sets the state of the Console, state depicts if the Console can log messages into the output.
 
 	### Parameters
-	- **state**: *A bool to indicate weather this logger is enabled or not.*
+	- **state**: *A bool to indicate weather this Console is enabled or not.*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Log("Hello, World!") -- > will output: [Logger][log]: "Hello, World!"
-		Logger:SetState(false)
-		Logger:Log("Hello, World!") -- > will output: nothing
+		Console:Log("Hello, World!") -- > will output: [Console][log]: "Hello, World!"
+		Console:SetState(false)
+		Console:Log("Hello, World!") -- > will output: nothing
 	```
 ]]
-function Logger.Prototype:SetState(state: boolean): ()
+function Console.Prototype:SetState(state: boolean): ()
 	self.enabled = state
 end
 
 --[[
-	Fetch an array of logs generated through this logger
+	Fetch an array of logs generated through this Console
 
 	### Parameters
 	- **count**: *The amount of logs you're trying to retrieve*
 
 	### Returns
-	- **Array**: *The array of logs created from this logger*
+	- **Array**: *The array of logs created from this Console*
 
 	---
 	Example:
 
 	```lua
-		local Logger = Logger.new("Logger")
+		local Console = Console.new("Console")
 
-		Logger:Log("Hello, World!") -- > [Logger][log]: "Hello, World!"
-		Logger:FetchLogs() -- > [=[
+		Console:Log("Hello, World!") -- > [Console][log]: "Hello, World!"
+		Console:FetchLogs() -- > [=[
 			{
 				"log",
-				"[Logger][log]: \"Hello, World!\"",
-				"Logger"
+				"[Console][log]: \"Hello, World!\"",
+				"Console"
 			}
 		]=]--
 	```
 ]]
-function Logger.Prototype:FetchLogs(count: number): { [number]: { logType: string, message: string, logId: string } }
+function Console.Prototype:FetchLogs(count: number): { [number]: { logType: string, message: string, logId: string } }
 	local fetchedLogs = {}
 
 	if not count then
@@ -408,7 +412,7 @@ function Logger.Prototype:FetchLogs(count: number): { [number]: { logType: strin
 end
 
 --[[
-	Returns a prettified string version of the logger table.
+	Returns a prettified string version of the Console table.
 
 	---
 	Example:
@@ -419,138 +423,138 @@ end
 		print(tostring(Value)) -- Value<0>
 	```
 ]]
-function Logger.Prototype:ToString(): string
-	return `{Logger.Type}<"{tostring(self.id)}">`
+function Console.Prototype:ToString(): string
+	return `{Console.Type}<"{tostring(self.id)}">`
 end
 
 -- // Module functions
 --[[
-	Set the global log level for all loggers, a log level is the priority of a log, priorities are represented by a number.
+	Set the global log level for all Consoles, a log level is the priority of a log, priorities are represented by a number.
 
 	### Parameters
 	- **logLevel**: *The logLevel priority you only want to show in output*
-		* *Log Levels are exposed through `Logger.LogLevel`*
+		* *Log Levels are exposed through `Console.LogLevel`*
 
 	---
 	Example:
 
 	```lua
-		Logger.setGlobalLogLevel(Logger.LogLevel.Warn)
+		Console.setGlobalLogLevel(Console.LogLevel.Warn)
 
-		Logger:log("Hello, World!") -- this will NOT output anything
-		Logger:warn("Hello, World!") -- this will output something
+		Console:log("Hello, World!") -- this will NOT output anything
+		Console:warn("Hello, World!") -- this will output something
 	```
 ]]
-function Logger.Interface.setGlobalLogLevel(logLevel: number): ()
-	Logger.LogLevel = logLevel
+function Console.Interface.setGlobalLogLevel(logLevel: number): ()
+	Console.LogLevel = logLevel
 end
 
 --[[
-	Set the global schema for all loggers, a schema is how we display the output of a log.
+	Set the global schema for all Consoles, a schema is how we display the output of a log.
 
 	### Parameters
-	- **schema**: *The schema you want all loggers to follow*
-		* **schema format**: *loggerName / logType / logMessage*
+	- **schema**: *The schema you want all Consoles to follow*
+		* **schema format**: *ConsoleName / logType / logMessage*
 		* **example schema**: *[%s][%s]: %s*
 
 	---
 	Example:
 
 	```lua
-		Logger.setGlobalSchema("[%s][%s]: %s")
+		Console.setGlobalSchema("[%s][%s]: %s")
 
-		Logger:log("Hello, World!") -- > [<ReporterName>][log]: Hello, World!
+		Console:log("Hello, World!") -- > [<ReporterName>][log]: Hello, World!
 	```
 ]]
-function Logger.Interface.setGlobalSchema(schema: string): ()
-	Logger.Schema = schema
+function Console.Interface.setGlobalSchema(schema: string): ()
+	Console.Schema = schema
 end
 
 --[[
-	Fetch a `Logger` object through it's given `logId`
+	Fetch a `Console` object through it's given `logId`
 
 	### Parameters
-	- **logId?**: *The name of the `Logger` object you want to fetch*
+	- **logId?**: *The name of the `Console` object you want to fetch*
 
 	### Returns
-	- **Logger**: *The constructed `Logger` prototype*
-	- **nil**: *Unable to find the `Logger`*
+	- **Console**: *The constructed `Console` prototype*
+	- **nil**: *Unable to find the `Console`*
 
 	---
 	Example:
 
 	```lua
-		Logger.get("Logger"):log("Hello, World!") -- > [Logger][log]: "Hello, World!"
+		Console.get("Console"):log("Hello, World!") -- > [Console][log]: "Hello, World!"
 	```
 ]]
-function Logger.Interface.get(logId: string): Types.Logger | nil
-	return Logger.Instances[logId]
+function Console.Interface.get(logId: string): Types.Console | nil
+	return Console.Instances[logId]
 end
 
 --[[
-	Constructor to generate a `Logger` prototype
+	Constructor to generate a `Console` prototype
 
 	### Parameters
-	- **logId?**: *The name of the `Logger`, this will default to the calling script name.*
-	- **schema?**: *The schema this paticular `Logger` will follow*
+	- **logId?**: *The name of the `Console`, this will default to the calling script name.*
+	- **schema?**: *The schema this paticular `Console` will follow*
 
 	### Returns
-	- **Logger**: The constructed `Logger` prototype
+	- **Console**: The constructed `Console` prototype
 
 	---
 	Example:
 
 	```lua
-		Logger.new("Example"):log("Hello, World!") -- > [Example][log]: "Hello, World!"
+		Console.new("Example"):log("Hello, World!") -- > [Example][log]: "Hello, World!"
 	```
 ]]
-function Logger.Interface.new(logId: string?, schema: string?): Types.Logger
+function Console.Interface.new(logId: string?, schema: string?): Types.Console
 	local self = setmetatable({
 		id = logId,
-		level = Logger.Interface.LogLevel.Debug,
+		level = Console.Interface.LogLevel.Debug,
 		schema = schema,
 		enabled = true,
 		logs = { },
 	}, {
-		__index = Logger.Prototype,
-		__type = Logger.Type,
+		__index = Console.Prototype,
+		__type = Console.Type,
 		__tostring = function(obj)
 			return obj:ToString()
 		end
 	})
 
 	if logId then
-		Logger.Instances[self.id] = self
+		Console.Instances[self.id] = self
 	end
 
 	return self
 end
 
 --[[
-	Validate if an object is a 'Logger' object
+	Validate if an object is a 'Console' object
 
 	### Parameters
-	- **object**: *potentially an 'Logger' object*
+	- **object**: *potentially an 'Console' object*
 
 	---
 	Example:
 
 	```lua
-		local object = Logger.new("Test")
+		local object = Console.new("Test")
 
-		if Logger.is(object) then
+		if Console.is(object) then
 			...
 		end
 	```
 ]]
-function Logger.Interface.is(object: Types.Logger?): boolean
+function Console.Interface.is(object: Types.Console?): boolean
 	if not object or type(object) ~= "table" then
 		return false
 	end
 
 	local metatable = getmetatable(object)
 
-	return metatable and metatable.__type == Logger.Type
+	return metatable and metatable.__type == Console.Type
 end
 
-return Logger.Interface :: Types.LoggerModule
+return Console.Interface :: Types.ConsoleModule

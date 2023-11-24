@@ -37,6 +37,11 @@ local TEST_STATUS_PRIORITY = table.freeze({
 	[TEST_STATUS_UNKNOWN] = 4
 })
 
+--[=[
+	@class Emoticon Reporter
+
+	Emoticon Reporter class description
+]=]
 local EmoticonReporter = {}
 
 EmoticonReporter.Interface = {}

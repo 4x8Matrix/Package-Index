@@ -1,8 +1,8 @@
---[=[
+--[[
 	@class Project
 
 	Summary
-]=]
+]]
 local Project = {}
 
 Project.Type = "Project"

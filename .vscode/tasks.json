@@ -31,6 +31,13 @@
 			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 
+		{
+			"label": "[🚀 - Nextra]: Start Documentation Server",
+			"type": "shell",
+			"command": "pnpm run dev",
+			"group": { "kind": "build" }
+		},
+
 		// Project Development
 		{
 			"label": "[🎈 - Rojo]: Start Rojo Server for a Project",

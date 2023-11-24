@@ -1,10 +1,23 @@
--- // External Imports
 local Signal = require(script.Parent.Signal)
 
--- // Constants
 local MAX_RECORD_ALLOCATION = 15
 
--- // Module
+--[=[
+	@class State
+
+	The `State` class represents an object that wraps around a single Value in the Roblox ecosystem. State is NOT immutable, meaning any/all data that the State is handling will NOT account for changes to that value outside of State.
+
+	---
+
+	There is quite a few features that have been bundled into State, however Developers do not need to take advantage of them all, here's a small rundown of what you Can do with state:
+
+	- Record/Save previous states
+		- For an example, this can come in handy if you need to record the player keystrokes
+	- QoL functions for mutating state
+		- State implements several QoL functions *(for ex: `Increment`, `Decrement`)* to allow developers to quickly mutate state without getting and setting values.
+	- Support for Roblox Attributes
+		- State will track and update Roblox Attributes on an Object, this can help quite a bit to remove the Roblox boilerplate for tracking when an Attribute has changed.
+]=]
 local State = {}
 
 State.Type = "State"
@@ -12,22 +25,36 @@ State.Type = "State"
 State.Interface = {}
 State.Prototype = {}
 
---[[
+--[=[
+	@method SetRecordingState
+	@within State
+
 	Sets the state of recording, when recording all states will be saved into a history of states
 
-	### Parameters
-	- **state**: *boolean depicting the state*
-
-	---
-	Example:
+	<Callout emoji="⚠️">
+		A single state object can only save up to **15** previous states!
+	</Callout>
 
 	```lua
-		local Value = State.new(0)
-			:SetRecordingState(true)
+		local NumberState = State.new(0)
+		
+		NumberState:SetRecordingState(true)
+
+		for index = 1, 5 do
+			NumberState:Set(index)
+		end
+
+		print(NumberState:GetRecord(6)) --> {
+		--		[1] = 0,
+		--		[2] = 1,
+		--		[3] = ...
+		--	}
 	```
-]]
-function State.Prototype:SetRecordingState(state: boolean): State
-	self._recording = state
+
+	@param isRecording boolean
+]=]
+function State.Prototype:SetRecordingState(isRecording: boolean): State
+	self._recording = isRecording
 
 	return self
 end

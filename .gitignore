@@ -6,3 +6,7 @@
 **/DevPackages/**
 
 sourcemap.json
+
+node_modules
+
+.next

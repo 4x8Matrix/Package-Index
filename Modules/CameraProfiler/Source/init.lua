@@ -7,7 +7,11 @@ local Signal = require(script.Parent.Signal)
 -- // Local Imports
 local Types = require(script.Types)
 
--- // Module
+--[=[
+	@class Camera Profiler
+
+	Camera Profiler class description
+]=]
 local CameraProfiler = {}
 
 CameraProfiler.Interface = {}
