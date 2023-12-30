@@ -1,10 +1,7 @@
--- // Services
 local RunService = game:GetService("RunService")
 
--- // External Imports
 local Signal = require(script.Parent.Signal)
 
--- // Constants
 local DEFAULT_LOGGING_SCHEMA = "[%s][%s] :: %s"
 local MAXIMUM_CACHED_LOGS = 500
 local PRETTY_TABLE_TAB = string.rep("\t", (RunService:IsStudio() and 1) or 5)
@@ -12,9 +9,34 @@ local PRETTY_TABLE_TAB = string.rep("\t", (RunService:IsStudio() and 1) or 5)
 --[=[
 	@class Console
 
-	Console class description
+	A package that helps to organise the Roblox output, primarily offering developers quality of life features over the default Roblox output behaviour.
 ]=]
 local Console = {}
+
+--[=[
+	@prop id string
+	@within Console
+]=]
+
+--[=[
+	@prop level number
+	@within Console
+]=]
+
+--[=[
+	@prop schema string
+	@within Console
+]=]
+
+--[=[
+	@prop enabled boolean
+	@within Console
+]=]
+
+--[=[
+	@prop logs { }
+	@within Console
+]=]
 
 Console.Type = "Console"
 
@@ -120,16 +142,14 @@ function Console.Functions:FormatMessageSchema(schema: string, source: string, .
 	return string.format(schema, source, ...)
 end
 
--- // Prototype functions
---[[
+--[=[
+	@method Assert
+	@within Console
+
+	@param condition boolean?
+	@param message ...
+
 	Assertions, however written through our Console, if the condition isn't met, the Console will call :error on itself with the given message.
-
-	### Parameters
-	- **condition**: *the condition we are going to validate*
-	- **...**: *anything, Console is equipped to parse & display all types.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
@@ -137,28 +157,27 @@ end
 		Console:Assert(1 == 1, "Hello, World!") -- > will output: nothing
 		Console:Assert(1 == 2, "Hello, World!") -- > will output: [Console][error]: "Hello, World!" <stack attached>
 	```
-]]
+]=]
 function Console.Prototype:Assert(condition, ...): ()
 	if not condition then
 		self:Error(...)
 	end
 end
 
---[[
+--[=[
+	@method Critical
+	@within Console
+
+	@param message ...
+
 	Create a new log for 'critical', critical being deployed in a situation where something has gone terribly wrong.
-
-	### Parameters
-	- **...**: *anything, Console is equipped to parse & display all types.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
 
 		Console:Critical("Hello, World!") -- > will output: [Console][critical]: "Hello, World!" <stack attached>
 	```
-]]
+]=]
 function Console.Prototype:Critical(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
 		self.schema or Console.Schema,
@@ -183,21 +202,20 @@ function Console.Prototype:Critical(...): ()
 	error(outputMessage, 2)
 end
 
---[[
+--[=[
+	@method Assert
+	@within Console
+
+	@param message ...
+
 	Create a new log for 'error', this is for errors raised through a developers code on purpose.
-
-	### Parameters
-	- **...**: *anything, Console is equipped to parse & display all types.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
 
 		Console:Error("Hello, World!") -- > will output: [Console][error]: "Hello, World!" <stack attached>
 	```
-]]
+]=]
 function Console.Prototype:Error(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
 		self.schema or Console.Schema,
@@ -222,21 +240,20 @@ function Console.Prototype:Error(...): ()
 	error(outputMessage, 2)
 end
 
---[[
+--[=[
+	@method Warn
+	@within Console
+
+	@param message ...
+
 	Create a new log for 'warn', this is for informing developers about something which takes precedence over a log
-
-	### Parameters
-	- **...**: *anything, Console is equipped to parse & display all types.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
 
 		Console:Warn("Hello, World!") -- > will output: [Console][warn]: "Hello, World!"
 	```
-]]
+]=]
 function Console.Prototype:Warn(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
 		self.schema or Console.Schema,
@@ -259,21 +276,20 @@ function Console.Prototype:Warn(...): ()
 	warn(outputMessage)
 end
 
---[[
+--[=[
+	@method Log
+	@within Console
+
+	@param message ...
+
 	Create a new log for 'log', this is for general logging - ideally what we would use in-place of print.
-
-	### Parameters
-	- **...**: *anything, Console is equipped to parse & display all types.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
 
 		Console:Log("Hello, World!") -- > will output: [Console][log]: "Hello, World!"
 	```
-]]
+]=]
 function Console.Prototype:Log(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
 		self.schema or Console.Schema,
@@ -296,21 +312,20 @@ function Console.Prototype:Log(...): ()
 	print(outputMessage)
 end
 
---[[
+--[=[
+	@method Debug
+	@within Console
+
+	@param message ...
+
 	Create a new log for 'debug', typically we should only use 'debug' when debugging code or leaving hints for developers.
-
-	### Parameters
-	- **...**: *anything, Console is equipped to parse & display all types.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
 
 		Console:Debug("Hello, World!") -- > will output: [Console][debug]: "Hello, World!"
 	```
-]]
+]=]
 function Console.Prototype:Debug(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
 		self.schema or Console.Schema,
@@ -333,18 +348,25 @@ function Console.Prototype:Debug(...): ()
 	print(outputMessage)
 end
 
---[[
+--[=[
+	@method SetLogLevel
+	@within Console
+
+	@param logLevel number 
+
 	Set an log level for this Console, log levels assigned per Console override the global log level.
 
-	### Parameters
-	- **logLevel**: *The logLevel priority you only want to show in output*
-		* *Log Levels are exposed through `Console.LogLevel`*
+	LogLevels that are by default set in `Console`:
 
-	### Returns
-	- **Array**: *The array of logs created from this Console*
+	- 1 = Debug
+	- 2 = Log
+	- 3 = Warn
+	- 4 = Error
+	- 5 = Critical
 
-	---
-	Example:
+	<Callout emoji="ℹ️">
+		As an alternative, Console provides a `LogLevel` enum, you can access this enum like: `Console.LogLevel.Debug`
+	</Callout>
 
 	```lua
 		local Console = ConsoleModule.new("Console")
@@ -359,19 +381,18 @@ end
 		Console:Log("Hello, World!") -- this will output something
 		Console:Warn("Hello, World!") -- this will output something
 	```
-]]
+]=]
 function Console.Prototype:SetLogLevel(logLevel: number): ()
 	self.level = logLevel
 end
 
---[[
+--[=[
+	@method SetState
+	@within Console
+
+	@param state: boolean
+
 	Sets the state of the Console, state depicts if the Console can log messages into the output.
-
-	### Parameters
-	- **state**: *A bool to indicate weather this Console is enabled or not.*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
@@ -380,36 +401,34 @@ end
 		Console:SetState(false)
 		Console:Log("Hello, World!") -- > will output: nothing
 	```
-]]
+]=]
 function Console.Prototype:SetState(state: boolean): ()
 	self.enabled = state
 end
 
---[[
+--[=[
+	@method FetchLogs
+	@within Console
+
+	@param count: number?
+
+	@return { [number]: { logType: string, message: string, logId: string } }
+
 	Fetch an array of logs generated through this Console
-
-	### Parameters
-	- **count**: *The amount of logs you're trying to retrieve*
-
-	### Returns
-	- **Array**: *The array of logs created from this Console*
-
-	---
-	Example:
 
 	```lua
 		local Console = Console.new("Console")
 
 		Console:Log("Hello, World!") -- > [Console][log]: "Hello, World!"
-		Console:FetchLogs() -- > [=[
+		Console:FetchLogs() -- > [[
 			{
 				"log",
 				"[Console][log]: \"Hello, World!\"",
 				"Console"
 			}
-		]=]--
+		]]--
 	```
-]]
+]=]
 function Console.Prototype:FetchLogs(count: number): { [number]: { logType: string, message: string, logId: string } }
 	local fetchedLogs = {}
 
@@ -428,32 +447,43 @@ function Console.Prototype:FetchLogs(count: number): { [number]: { logType: stri
 	return fetchedLogs
 end
 
---[[
-	Returns a prettified string version of the Console table.
+--[=[
+	@method ToString
+	@within Console
 
-	---
-	Example:
+	@return string
+
+	Returns a prettified string version of the Console table.
 
 	```lua
 		local Value = State.new(0)
 
 		print(tostring(Value)) -- Value<0>
 	```
-]]
+]=]
 function Console.Prototype:ToString(): string
 	return `{Console.Type}<"{tostring(self.id)}">`
 end
 
--- // Module functions
---[[
+--[=[
+	@function setGlobalLogLevel
+	@within Console
+
+	@param logLevel number
+
 	Set the global log level for all Consoles, a log level is the priority of a log, priorities are represented by a number.
 
-	### Parameters
-	- **logLevel**: *The logLevel priority you only want to show in output*
-		* *Log Levels are exposed through `Console.LogLevel`*
+	LogLevels that are by default set in `Console`:
 
-	---
-	Example:
+	- 1 = Debug
+	- 2 = Log
+	- 3 = Warn
+	- 4 = Error
+	- 5 = Critical
+
+	<Callout emoji="ℹ️">
+		As an alternative, Console provides a `LogLevel` enum, you can access this enum like: `Console.LogLevel.Debug`
+	</Callout>
 
 	```lua
 		Console.setGlobalLogLevel(Console.LogLevel.Warn)
@@ -461,70 +491,62 @@ end
 		Console:log("Hello, World!") -- this will NOT output anything
 		Console:warn("Hello, World!") -- this will output something
 	```
-]]
+]=]
 function Console.Interface.setGlobalLogLevel(logLevel: number): ()
 	Console.LogLevel = logLevel
 end
 
---[[
-	Set the global schema for all Consoles, a schema is how we display the output of a log.
+--[=[
+	@function setGlobalSchema
+	@within Console
 
-	### Parameters
-	- **schema**: *The schema you want all Consoles to follow*
-		* **schema format**: *ConsoleName / logType / logMessage*
-		* **example schema**: *[%s][%s]: %s*
+	@param schema string
 
-	---
-	Example:
+	Set the global schema for all Consoles, a schema is how the log is displayed in the console.
 
 	```lua
 		Console.setGlobalSchema("[%s][%s]: %s")
 
 		Console:log("Hello, World!") -- > [<ReporterName>][log]: Hello, World!
 	```
-]]
+]=]
 function Console.Interface.setGlobalSchema(schema: string): ()
 	Console.Schema = schema
 end
 
---[[
+--[=[
+	@function get
+	@within Console
+
+	@param logId string
+
+	@return Console?
+
 	Fetch a `Console` object through it's given `logId`
-
-	### Parameters
-	- **logId?**: *The name of the `Console` object you want to fetch*
-
-	### Returns
-	- **Console**: *The constructed `Console` prototype*
-	- **nil**: *Unable to find the `Console`*
-
-	---
-	Example:
 
 	```lua
 		Console.get("Console"):log("Hello, World!") -- > [Console][log]: "Hello, World!"
 	```
-]]
+]=]
 function Console.Interface.get(logId: string): Console?
 	return Console.Instances[logId]
 end
 
---[[
+--[=[
+	@function new
+	@within Console
+
+	@param logId string?
+	@param schema string?
+
+	@return Console
+
 	Constructor to generate a `Console` prototype
-
-	### Parameters
-	- **logId?**: *The name of the `Console`, this will default to the calling script name.*
-	- **schema?**: *The schema this paticular `Console` will follow*
-
-	### Returns
-	- **Console**: The constructed `Console` prototype
-
-	---
-	Example:
 
 	```lua
 		Console.new("Example"):log("Hello, World!") -- > [Example][log]: "Hello, World!"
 	```
-]]
+]=]
 function Console.Interface.new(logId: string?, schema: string?): Console
 	local self = setmetatable({
 		id = logId,
@@ -547,26 +569,24 @@ function Console.Interface.new(logId: string?, schema: string?): Console
 	return self
 end
 
---[[
+--[=[
+	@function newOrphaned
+	@within Console
+
+	@param logId string?
+	@param schema string?
+
+	@return Console
+
 	Constructor to generate an orphaned `Console` prototype, orphaned in this case meaning a console object that the Console library will
 		not track or monitor, thus any global console updates will not be applied to this console object.
 
 	This should be used when using `Console` in a library so that any game `Consoles` are isolated from the libraries `Consoles`
 
-	### Parameters
-	- **logId?**: *The name of the `Console`, this will default to the calling script name.*
-	- **schema?**: *The schema this paticular `Console` will follow*
-
-	### Returns
-	- **Console**: The constructed `Console` prototype
-
-	---
-	Example:
-
 	```lua
 		Console.newOrphaned("Example"):log("Hello, World!") -- > [Example][log]: "Hello, World!"
 	```
-]]
+]=]
 function Console.Interface.newOrphaned(logId: string?, schema: string?): Console
 	local self = setmetatable({
 		id = logId,
@@ -589,14 +609,15 @@ function Console.Interface.newOrphaned(logId: string?, schema: string?): Console
 	return self
 end
 
---[[
+--[=[
+	@function is
+	@within Console
+
+	@param object Console?
+
+	@return boolean
+
 	Validate if an object is a 'Console' object
-
-	### Parameters
-	- **object**: *potentially an 'Console' object*
-
-	---
-	Example:
 
 	```lua
 		local object = Console.new("Test")
@@ -605,7 +626,7 @@ end
 			...
 		end
 	```
-]]
+]=]
 function Console.Interface.is(object: Console?): boolean
 	if not object or type(object) ~= "table" then
 		return false
