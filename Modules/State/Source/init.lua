@@ -5,11 +5,11 @@ local MAX_RECORD_ALLOCATION = 15
 --[=[
 	@class State
 
-	The `State` class represents an object that wraps around a single Value in the Roblox ecosystem. State is NOT immutable, meaning any/all data that the State is handling will NOT account for changes to that value outside of State.
+	The `State` class represents an object that wraps around a Roblox datatype. State is NOT immutable, meaning any/all data that the State is handling will NOT account for changes to that value outside of State.
 
 	---
 
-	There is quite a few features that have been bundled into State, however Developers do not need to take advantage of them all, here's a small rundown of what you Can do with state:
+	There is quite a few features that have been bundled into State, however Developers do not need to take advantage of them all, here's a small rundown of what you can do with state:
 
 	- Record/Save previous states
 		- For an example, this can come in handy if you need to record the player keystrokes
@@ -26,8 +26,25 @@ State.Interface = {}
 State.Prototype = {}
 
 --[=[
+	@prop Value any
+	@within State
+]=]
+
+--[=[
+	@prop Changed RBXScriptSignal
+	@within State
+]=]
+
+--[=[
+	@prop Destroyed RBXScriptSignal
+	@within State
+]=]
+
+--[=[
 	@method SetRecordingState
 	@within State
+
+	@param isRecording boolean
 
 	Sets the state of recording, when recording all states will be saved into a history of states
 
@@ -39,19 +56,7 @@ State.Prototype = {}
 		local NumberState = State.new(0)
 		
 		NumberState:SetRecordingState(true)
-
-		for index = 1, 5 do
-			NumberState:Set(index)
-		end
-
-		print(NumberState:GetRecord(6)) --> {
-		--		[1] = 0,
-		--		[2] = 1,
-		--		[3] = ...
-		--	}
 	```
-
-	@param isRecording boolean
 ]=]
 function State.Prototype:SetRecordingState(isRecording: boolean): State
 	self._recording = isRecording
@@ -59,21 +64,33 @@ function State.Prototype:SetRecordingState(isRecording: boolean): State
 	return self
 end
 
---[[
+--[=[
+	@method GetRecord
+	@within State
+
+	@param count number?
+
+	@return { [number]: any }
+
 	Retrieves an array of previous states that have been set
 
-	### Parameters
-	- **count?**: *the amount of previous states you'd want to retrieve*
-
-	---
-	Example:
-
 	```lua
-		local Value = State.new(0)
-			:SetRecordingState(true)
+		local NumberState = State.new(0)
+		
+		NumberState:SetRecordingState(true)
+
+		for index = 1, 5 do
+			NumberState:Set(index)
+		end
+
+		print(NumberState:GetRecord(3)) --> {
+		--		[1] = 0,
+		--		[2] = 1,
+		--		[3] = ...
+		--	}
 	```
-]]
-function State.Prototype:GetRecord(count: number): { any }
+]=]
+function State.Prototype:GetRecord(count: number): { [number]: any }
 	if not count then
 		return self._record
 	end
@@ -87,13 +104,11 @@ function State.Prototype:GetRecord(count: number): { any }
 	return record
 end
 
---[[
+--[=[
+	@method Destroy
+	@within State
+
 	Safe way to remove references to the `Value` as well as removing any generated content
-
-	### Destroy
-
-	---
-	Example:
 
 	```lua
 		local Value = State.new(0)
@@ -102,29 +117,28 @@ end
 
 		Value:Destroy()
 	```
-]]
+]=]
 function State.Prototype:Destroy(): ()
-	self._record = { }
+	self._record = {}
 	self.Value = nil
 
 	self.Destroyed:Fire()
 end
 
---[[
+--[=[
+	@method Set
+	@within State
+
+	@param value any
+
 	Set the value of a state, when setting a state the 'Changed' signal will invoke.
-
-	### Parameters
-	- **value**: *the value we're setting*
-
-	---
-	Example:
 
 	```lua
 		local Value = State.new(0)
 
 		Value:Set(1)
 	```
-]]
+]=]
 function State.Prototype:Set(value: any): State
 	local oldValue = self.Value
 
@@ -146,11 +160,13 @@ function State.Prototype:Set(value: any): State
 	return self
 end
 
---[[
-	Increments the value by a given input
+--[=[
+	@method Increment
+	@within State
 
-	---
-	Example:
+	@param value number
+
+	Increments the value by a given input
 
 	```lua
 		local value = State.new(5)
@@ -158,7 +174,7 @@ end
 
 		print(value:Get()) -- 10
 	```
-]]
+]=]
 function State.Prototype:Increment(value: number): State
 	assert(
 		type(self.Value) == "number",
@@ -170,11 +186,13 @@ function State.Prototype:Increment(value: number): State
 	return self
 end
 
---[[
-	Decrement the value by a given input
+--[=[
+	@method Decrement
+	@within State
 
-	---
-	Example:
+	@param value number
+
+	Decrement the value by a given input
 
 	```lua
 		local value = State.new(10)
@@ -182,7 +200,7 @@ end
 
 		print(value:Get()) -- 5
 	```
-]]
+]=]
 function State.Prototype:Decrement(value: number): State
 	assert(
 		type(self.Value) == "number",
@@ -194,11 +212,13 @@ function State.Prototype:Decrement(value: number): State
 	return self
 end
 
---[[
-	Concat the value by a given input
+--[=[
+	@method Concat
+	@within State
 
-	---
-	Example:
+	@param value string
+
+	Concat the value by a given input
 
 	```lua
 		local Value = State.new("Hello ")
@@ -206,7 +226,7 @@ end
 
 		print(value:Get()) -- Hello World!
 	```
-]]
+]=]
 function State.Prototype:Concat(value: string): State
 	assert(
 		type(self.Value) == "string",
@@ -218,11 +238,13 @@ function State.Prototype:Concat(value: string): State
 	return self
 end
 
---[[
-	Update the given value with a transform function
+--[=[
+	@method Update
+	@within State
 
-	---
-	Example:
+	@param transformFn (value: any) -> any
+
+	Will change the value of the state to the result of the transform function
 
 	```lua
 		local Value = State.new("Hello ")
@@ -232,7 +254,7 @@ end
 
 		print(value:Get()) -- Hello World!
 	```
-]]
+]=]
 function State.Prototype:Update(transform: (value: any) -> any): State
 	assert(
 		type(transform) == "function",
@@ -244,29 +266,36 @@ function State.Prototype:Update(transform: (value: any) -> any): State
 	return self
 end
 
---[[
+--[=[
+	@method Get
+	@within State
+
+	@return any
+
 	Fetches the value that the State currently holds.
 
-	---
-	Example:
+	<Callout emoji="ℹ️">
+		As an alternative, `State` offers a `.Value` property which you can directly refer to.
+	</Callout>
 
 	```lua
 		local Value = State.new(0)
 		local resolve = Value:Get()
 	```
-]]
+]=]
 function State.Prototype:Get(): any
 	return self.Value
 end
 
---[[
+--[=[
+	@method Observe
+	@within State
+
+	@param callbackFn (oldValue: any, newValue: any) -> ()
+
+	@return RBXScriptConnection
+
 	Quick QoL function to observe any changes made to the states value
-
-	### Parameters
-	- **callbackFn**: *the callback function that'll connect to the 'Changed' event*
-
-	---
-	Example:
 
 	```lua
 		local Value = State.new(0)
@@ -275,42 +304,47 @@ end
 			doSomething(oldValue, newValue)
 		end)
 	```
-]]
+]=]
 function State.Prototype:Observe(callbackFn: (oldValue: any, newValue: any) -> ()): RBXScriptConnection
+	task.spawn(callbackFn, nil, self.Value)
+
 	return self.Changed:Connect(callbackFn)
 end
 
---[[
-	Returns a prettified string version of the state table.
+--[=[
+	@method ToString
+	@within State
 
-	---
-	Example:
+	@return string
+
+	Returns a prettified string version of the state table.
 
 	```lua
 		local Value = State.new(0)
 
 		print(tostring(Value)) -- Value<0>
 	```
-]]
+]=]
 function State.Prototype:ToString()
 	return `{State.Type}<{tostring(self.Value)}>`
 end
 
---[[
-	Generate a new 'value' object
+--[=[
+	@function new
+	@within State
 
-	### Parameters
-	- **value**: *any object/type you'd want to store inside of the State*
+	@param value any
 
-	---
-	Example:
+	@return State
+
+	Constructor function used to generate a new 'State' object
 
 	```lua
 		local object = State.new("Hello, World!")
 
 		...
 	```
-]]
+]=]
 function State.Interface.new(value: any): State
 	local self = setmetatable({ Value = value, _record = { value } }, {
 		__type = State.Type,
@@ -318,7 +352,6 @@ function State.Interface.new(value: any): State
 		__tostring = function(object)
 			return object:ToString()
 		end,
-
 	})
 
 	self.Changed = Signal.new()
@@ -327,31 +360,35 @@ function State.Interface.new(value: any): State
 	return self
 end
 
---[[
-	Generate a new 'value' object based off of an object's attribute
+--[=[
+	@function fromAttribute
+	@within State
 
-	### Parameters
-	- **object**: *the object you'd like to get the attribute from*
-	- **attribute**: *the name of the attribute*
+	@param object Instance
+	@param attribute string
 
-	---
-	Example:
+	@return State
+
+	Wrapper for `State.new` however wraps around a Roblox attribute, the State object will always have the latest attribute value.
 
 	```lua
 		local object = State.fromAttribute(workspace.object, "attributeName")
 
 		...
 	```
-]]
-function State.Interface.fromAttribute(object, attribute): State
+]=]
+function State.Interface.fromAttribute(object: Instance, attribute: string): State
 	local attributeValue = object:GetAttribute(attribute)
 	local stateObject = State.Interface.new(attributeValue)
 
-	local attributeConnections = { }
+	local attributeConnections = {}
 
-	table.insert(attributeConnections, object:GetAttributeChangedSignal(attribute):Connect(function()
-		stateObject:Set(object:GetAttribute(attribute))
-	end))
+	table.insert(
+		attributeConnections,
+		object:GetAttributeChangedSignal(attribute):Connect(function()
+			stateObject:Set(object:GetAttribute(attribute))
+		end)
+	)
 
 	stateObject.Destroyed:Once(function()
 		for _, connection in attributeConnections do
@@ -362,14 +399,15 @@ function State.Interface.fromAttribute(object, attribute): State
 	return stateObject
 end
 
---[[
+--[=[
+	@function is
+	@within State
+
+	@param object State?
+
+	@return boolean?
+
 	Validate if an object is a 'State' object
-
-	### Parameters
-	- **object**: *potentially an 'State' object*
-
-	---
-	Example:
 
 	```lua
 		local object = State.new("Hello, World!")
@@ -378,7 +416,7 @@ end
 			...
 		end
 	```
-]]
+]=]
 function State.Interface.is(object: State?): boolean
 	if not object or type(object) ~= "table" then
 		return false
@@ -390,7 +428,7 @@ function State.Interface.is(object: State?): boolean
 end
 
 export type State = typeof(State.Prototype) & {
-	Value: any
+	Value: any,
 }
 
 return State.Interface
