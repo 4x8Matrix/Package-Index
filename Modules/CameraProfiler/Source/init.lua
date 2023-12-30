@@ -67,6 +67,7 @@ function CameraProfiler.Interface:SetActiveCamera(cameraName: string): ()
 	CameraProfiler.Active = cameraObject
 	cameraObject.Instance.Parent = workspace
 
+	-- selene: allow(incorrect_standard_library_use)
 	workspace.CurrentCamera = cameraObject.Instance
 
 	cameraReference.Parent = nil
