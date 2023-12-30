@@ -1,11 +1,6 @@
--- // Services
 local RunService = game:GetService("RunService")
 
--- // External Imports
 local Signal = require(script.Parent.Signal)
-
--- // Local Imports
-local Types = require(script.Types)
 
 --[=[
 	@class Camera Profiler
@@ -15,13 +10,13 @@ local Types = require(script.Types)
 local CameraProfiler = {}
 
 CameraProfiler.Interface = {}
+CameraProfiler.Active = nil
 
 CameraProfiler.Interface.Camera = require(script.Camera)
 
 CameraProfiler.Interface.CameraActivated = Signal.new()
 CameraProfiler.Interface.CameraDeactivated = Signal.new()
 
--- // Module functions
 --[[
 	Get the active camera instance, this'll return a string that represents a camera object.
 
@@ -88,4 +83,4 @@ function CameraProfiler:Init()
 	return CameraProfiler.Interface
 end
 
-return CameraProfiler:Init() :: Types.CameraProfiler
+return CameraProfiler:Init() :: typeof(CameraProfiler.Interface)

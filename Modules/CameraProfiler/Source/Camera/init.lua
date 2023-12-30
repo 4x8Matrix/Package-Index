@@ -1,4 +1,3 @@
--- // Module
 local Camera = {}
 
 Camera.Type = "Camera"
@@ -8,7 +7,6 @@ Camera.Instances = {}
 Camera.Interface = {}
 Camera.Prototype = {}
 
--- // Prototype lifecycles
 --[[
 	Lifecycle method that'll invoke once the camera has been activated
 
@@ -57,7 +55,6 @@ function Camera.Prototype:OnDeactivated() end
 ]]
 function Camera.Prototype:OnRenderStepped() end
 
--- // Prototype functions
 --[[
 	Attempt to execute a camera object's lifecycle method
 
@@ -74,7 +71,7 @@ function Camera.Prototype:OnRenderStepped() end
 		cameraObject:InvokeLifecycleMethod("methodName", 1, 2, 3)
 	```
 ]]
-function Camera.Prototype:InvokeLifecycleMethod(lifecycleMethod, ...)
+function Camera.Prototype:InvokeLifecycleMethod(lifecycleMethod: string, ...)
 	if not self[lifecycleMethod] then
 		return
 	end
@@ -92,11 +89,10 @@ end
 		CameraProfile.Camera.new("DefaultCamera"):ToString() -- > "Camera<"DefaultCamera">"
 	```
 ]]
-function Camera.Prototype:ToString()
+function Camera.Prototype:ToString(): string
 	return `{Camera.Type}<"{self.Name}">`
 end
 
--- // Module functions
 --[[
 	Wrap around a Camera instance, the goal being to allow developers to wrap around already instantiated camera objects.
 
@@ -113,7 +109,7 @@ end
 		CameraProfile.Camera.wrap("DefaultCamera", workspace.CurrentCamera)
 	```
 ]]
-function Camera.Interface.wrap(name, cameraInstance)
+function Camera.Interface.wrap(name: string, cameraInstance: Camera): CameraObject
 	assert(type(name) == "string", `Expected parameter #1 'name' to be a string, got {type(name)}`)
 	assert(
 		type(cameraInstance) == "userdata",
@@ -161,7 +157,7 @@ end
 		CameraProfile.Camera.new("CustomCamera")
 	```
 ]]
-function Camera.Interface.new(name)
+function Camera.Interface.new(name: string): CameraObject
 	return Camera.Interface.wrap(name, Instance.new("Camera"))
 end
 
@@ -184,7 +180,7 @@ end
 		) -- > false
 	```
 ]]
-function Camera.Interface.is(object)
+function Camera.Interface.is(object: any): boolean
 	if not object or type(object) ~= "table" then
 		return false
 	end
@@ -207,8 +203,13 @@ end
 		CameraProfile.Camera.get("DefaultCamera")
 	```
 ]]
-function Camera.Interface.get(name)
+function Camera.Interface.get(name: string): CameraObject?
 	return Camera.Instances[name]
 end
+
+export type CameraObject = typeof(Camera.Prototype) & {
+	Name: string,
+	Instance: Camera,
+}
 
 return Camera.Interface
