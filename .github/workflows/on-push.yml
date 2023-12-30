@@ -1,0 +1,18 @@
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - master
+
+jobs:
+  update-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: DOcumentation Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT }}
+          repository: 4x8Matrix/Package-Index-Site
+          event-type: update-documentation
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
