@@ -4,9 +4,6 @@ local RunService = game:GetService("RunService")
 -- // External Imports
 local Signal = require(script.Parent.Signal)
 
--- // Internal Imports
-local Types = require(script.Types)
-
 -- // Constants
 local DEFAULT_LOGGING_SCHEMA = "[%s][%s] :: %s"
 local MAXIMUM_CACHED_LOGS = 500
@@ -17,7 +14,7 @@ local PRETTY_TABLE_TAB = string.rep("\t", (RunService:IsStudio() and 1) or 5)
 
 	Console class description
 ]=]
-local Console = { }
+local Console = {}
 
 Console.Type = "Console"
 
@@ -26,10 +23,10 @@ Console.Schema = DEFAULT_LOGGING_SCHEMA
 
 Console.Cache = setmetatable({}, { __mode = "kv" })
 
-Console.Functions = { }
-Console.Interface = { }
-Console.Instances = { }
-Console.Prototype = { }
+Console.Functions = {}
+Console.Interface = {}
+Console.Instances = {}
+Console.Prototype = {}
 
 Console.Interface.onMessageOut = Signal.new()
 Console.Interface.LogLevel = {
@@ -56,7 +53,7 @@ function Console.Functions:AddScopeToString(string)
 end
 
 function Console.Functions:ToPrettyString(...)
-	local stringifiedObjects = { }
+	local stringifiedObjects = {}
 
 	for _, object in { ... } do
 		local objectType = typeof(object)
@@ -114,18 +111,13 @@ function Console.Functions:FormatVaradicArguments(...)
 
 	table.clear(Console.Cache)
 
-	return string.format(
-		message,
-		table.unpack(args)
-	)
+	return string.format(message, table.unpack(args))
 end
 
 function Console.Functions:FormatMessageSchema(schema: string, source: string, ...)
 	source = source or debug.info(2, "s")
 
-	return string.format(
-		schema, source, ...
-	)
+	return string.format(schema, source, ...)
 end
 
 -- // Prototype functions
@@ -168,7 +160,12 @@ end
 	```
 ]]
 function Console.Prototype:Critical(...): ()
-	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "critical", Console.Functions:FormatVaradicArguments(...))
+	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.schema or Console.Schema,
+		self.id,
+		"critical",
+		Console.Functions:FormatVaradicArguments(...)
+	)
 
 	table.insert(self.logs, 1, { "critical", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
@@ -202,7 +199,12 @@ end
 	```
 ]]
 function Console.Prototype:Error(...): ()
-	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "error", Console.Functions:FormatVaradicArguments(...))
+	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.schema or Console.Schema,
+		self.id,
+		"error",
+		Console.Functions:FormatVaradicArguments(...)
+	)
 
 	table.insert(self.logs, 1, { "error", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
@@ -236,7 +238,12 @@ end
 	```
 ]]
 function Console.Prototype:Warn(...): ()
-	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "warn", Console.Functions:FormatVaradicArguments(...))
+	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.schema or Console.Schema,
+		self.id,
+		"warn",
+		Console.Functions:FormatVaradicArguments(...)
+	)
 
 	table.insert(self.logs, 1, { "warn", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
@@ -268,7 +275,12 @@ end
 	```
 ]]
 function Console.Prototype:Log(...): ()
-	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "log", Console.Functions:FormatVaradicArguments(...))
+	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.schema or Console.Schema,
+		self.id,
+		"log",
+		Console.Functions:FormatVaradicArguments(...)
+	)
 
 	table.insert(self.logs, 1, { "log", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
@@ -300,7 +312,12 @@ end
 	```
 ]]
 function Console.Prototype:Debug(...): ()
-	local outputMessage = Console.Functions:FormatMessageSchema(self.schema or Console.Schema, self.id, "debug", Console.Functions:FormatVaradicArguments(...))
+	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.schema or Console.Schema,
+		self.id,
+		"debug",
+		Console.Functions:FormatVaradicArguments(...)
+	)
 
 	table.insert(self.logs, 1, { "debug", outputMessage, self.id })
 	if #self.logs > MAXIMUM_CACHED_LOGS then
@@ -487,7 +504,7 @@ end
 		Console.get("Console"):log("Hello, World!") -- > [Console][log]: "Hello, World!"
 	```
 ]]
-function Console.Interface.get(logId: string): Types.Console | nil
+function Console.Interface.get(logId: string): Console?
 	return Console.Instances[logId]
 end
 
@@ -508,19 +525,61 @@ end
 		Console.new("Example"):log("Hello, World!") -- > [Example][log]: "Hello, World!"
 	```
 ]]
-function Console.Interface.new(logId: string?, schema: string?): Types.Console
+function Console.Interface.new(logId: string?, schema: string?): Console
 	local self = setmetatable({
 		id = logId,
 		level = Console.Interface.LogLevel.Debug,
 		schema = schema,
 		enabled = true,
-		logs = { },
+		logs = {},
 	}, {
 		__index = Console.Prototype,
 		__type = Console.Type,
 		__tostring = function(obj)
 			return obj:ToString()
-		end
+		end,
+	})
+
+	if logId then
+		Console.Instances[self.id] = self
+	end
+
+	return self
+end
+
+--[[
+	Constructor to generate an orphaned `Console` prototype, orphaned in this case meaning a console object that the Console library will
+		not track or monitor, thus any global console updates will not be applied to this console object.
+
+	This should be used when using `Console` in a library so that any game `Consoles` are isolated from the libraries `Consoles`
+
+	### Parameters
+	- **logId?**: *The name of the `Console`, this will default to the calling script name.*
+	- **schema?**: *The schema this paticular `Console` will follow*
+
+	### Returns
+	- **Console**: The constructed `Console` prototype
+
+	---
+	Example:
+
+	```lua
+		Console.newOrphaned("Example"):log("Hello, World!") -- > [Example][log]: "Hello, World!"
+	```
+]]
+function Console.Interface.newOrphaned(logId: string?, schema: string?): Console
+	local self = setmetatable({
+		id = logId,
+		level = Console.Interface.LogLevel.Debug,
+		schema = schema,
+		enabled = true,
+		logs = {},
+	}, {
+		__index = Console.Prototype,
+		__type = Console.Type,
+		__tostring = function(obj)
+			return obj:ToString()
+		end,
 	})
 
 	if logId then
@@ -547,7 +606,7 @@ end
 		end
 	```
 ]]
-function Console.Interface.is(object: Types.Console?): boolean
+function Console.Interface.is(object: Console?): boolean
 	if not object or type(object) ~= "table" then
 		return false
 	end
@@ -557,4 +616,12 @@ function Console.Interface.is(object: Types.Console?): boolean
 	return metatable and metatable.__type == Console.Type
 end
 
-return Console.Interface :: Types.ConsoleModule
+export type Console = typeof(Console.Prototype) & {
+	id: string,
+	level: number,
+	schema: string,
+	enabled: boolean,
+	logs: {},
+}
+
+return Console.Interface
