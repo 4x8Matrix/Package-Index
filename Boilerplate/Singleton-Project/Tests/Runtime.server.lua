@@ -1,5 +1,0 @@
-local EXECUTE_PROJECT_TESTEZ_TESTS = true
-
-if EXECUTE_PROJECT_TESTEZ_TESTS then
-	return
-end
