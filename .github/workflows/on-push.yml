@@ -9,7 +9,7 @@ jobs:
   update-documentation:
     runs-on: ubuntu-latest
     steps:
-      - name: DOcumentation Dispatch
+      - name: Dcumentation Dispatch
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT }}
