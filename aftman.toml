@@ -6,3 +6,4 @@
 [tools]
 luaulsp = "JohnnyMorganz/luau-lsp@1.24.1"
 lune = "filiptibell/lune@0.7.11"
+selene = "Kampfkarren/selene@0.26.1"
