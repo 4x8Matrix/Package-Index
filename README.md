@@ -4,8 +4,6 @@ A simple mono-repository containing all open sourced/available packages i've upl
 
 - https://wally.run/
 
----
-
 ## Documentation
 
 Documentation for this repository is housed in a seperate repository for the sake of simplicity, the documentation site is hosted with Vercel and the technology powering it is Nextra.
