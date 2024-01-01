@@ -1,3 +1,19 @@
+--[=[
+	@class Camera Object
+
+	The base camera object that the end developer will be interacting with, think of this object as an extendable class that you'll overwrite lifecycle methods on.
+]=]
+
+--[=[
+	@prop Name string
+	@within Camera Object
+]=]
+
+--[=[
+	@prop Instance Instance
+	@within Camera Object
+]=]
+
 local Camera = {}
 
 Camera.Type = "Camera"
@@ -7,11 +23,11 @@ Camera.Instances = {}
 Camera.Interface = {}
 Camera.Prototype = {}
 
---[[
-	Lifecycle method that'll invoke once the camera has been activated
+--[=[
+	@method OnActivated
+	@within Camera Object
 
-	---
-	Example:
+	Lifecycle method that'll invoke once the camera has been activated
 
 	```lua
 		local cameraObject = CameraProfile.Camera.new("DefaultCamera")
@@ -20,30 +36,30 @@ Camera.Prototype = {}
 			renderStepPrep()
 		end
 	```
-]]
+]=]
 function Camera.Prototype:OnActivated() end
 
---[[
-	Lifecycle method that'll invoke once the camera has been deactivated
+--[=[
+	@method OnDeactivated
+	@within Camera Object
 
-	---
-	Example:
+	Lifecycle method that'll invoke once the camera has been deactivated
 
 	```lua
 		local cameraObject = CameraProfile.Camera.new("DefaultCamera")
 
-		function cameraObject:OnRenderStepped()
+		function cameraObject:OnDeactivated()
 			cleanUpCamera()
 		end
 	```
-]]
+]=]
 function Camera.Prototype:OnDeactivated() end
 
---[[
-	Render Stepped lifecycle method that'll be called each render stepped when the camera is active
+--[=[
+	@method OnRenderStepped
+	@within Camera Object
 
-	---
-	Example:
+	Render Stepped lifecycle method that'll be called each render stepped when the camera is active
 
 	```lua
 		local cameraObject = CameraProfile.Camera.new("DefaultCamera")
@@ -52,14 +68,16 @@ function Camera.Prototype:OnDeactivated() end
 			self.Instance.CFrame = CFrame.new(1, 0, 1)
 		end
 	```
-]]
+]=]
 function Camera.Prototype:OnRenderStepped() end
 
---[[
-	Attempt to execute a camera object's lifecycle method
+--[=[
+	@method InvokeLifecycleMethod
+	@within Camera Object
 
-	---
-	Example:
+	@return ...
+
+	Attempt to execute a camera object's lifecycle method
 
 	```lua
 		local cameraObject = CameraProfile.Camera.new("DefaultCamera")
@@ -70,7 +88,7 @@ function Camera.Prototype:OnRenderStepped() end
 
 		cameraObject:InvokeLifecycleMethod("methodName", 1, 2, 3)
 	```
-]]
+]=]
 function Camera.Prototype:InvokeLifecycleMethod(lifecycleMethod: string, ...)
 	if not self[lifecycleMethod] then
 		return
@@ -79,36 +97,39 @@ function Camera.Prototype:InvokeLifecycleMethod(lifecycleMethod: string, ...)
 	return self[lifecycleMethod](self, ...)
 end
 
---[[
-	Get a string'd version of the current Camera instance
+--[=[
+	@method ToString
+	@within Camera Object
 
-	---
-	Example:
+	@return string
+
+	Get a string'd version of the current Camera instance
 
 	```lua
 		CameraProfile.Camera.new("DefaultCamera"):ToString() -- > "Camera<"DefaultCamera">"
 	```
-]]
+]=]
 function Camera.Prototype:ToString(): string
 	return `{Camera.Type}<"{self.Name}">`
 end
 
---[[
+--[=[
+	@function wrap
+	@within Camera Object
+
+	@param name string
+	@param cameraInstance Instance
+	
+	@return Camera Object
+
 	Wrap around a Camera instance, the goal being to allow developers to wrap around already instantiated camera objects.
-
-	### Parameters
-	- **name**: *the name of the Camera object*
-	- **cameraInstance**: *the camera object you're wrapping*
-
-	---
-	Example:
 
 	```lua
 		-- wrap around the current workspace camera!
 
 		CameraProfile.Camera.wrap("DefaultCamera", workspace.CurrentCamera)
 	```
-]]
+]=]
 function Camera.Interface.wrap(name: string, cameraInstance: Camera): CameraObject
 	assert(type(name) == "string", `Expected parameter #1 'name' to be a string, got {type(name)}`)
 	assert(
@@ -144,31 +165,33 @@ function Camera.Interface.wrap(name: string, cameraInstance: Camera): CameraObje
 	return Camera.Instances[name]
 end
 
---[[
+--[=[
+	@function new
+	@within Camera Object
+
+	@param name string
+
+	@return Camera Object
+
 	Generate a new camera instance
-
-	### Parameters
-	- **name**: *the name of the Camera object*
-
-	---
-	Example:
 
 	```lua
 		CameraProfile.Camera.new("CustomCamera")
 	```
-]]
+]=]
 function Camera.Interface.new(name: string): CameraObject
 	return Camera.Interface.wrap(name, Instance.new("Camera"))
 end
 
---[[
+--[=[
+	@function is
+	@within Camera Object
+
+	@param object any
+
+	@return boolean
+
 	Validate if an object is a camera object
-
-	### Parameters
-	- **object**: *the camera instance, or what could be a camera instance*
-
-	---
-	Example:
 
 	```lua
 		CameraProfile.Camera.is(
@@ -179,7 +202,7 @@ end
 			123
 		) -- > false
 	```
-]]
+]=]
 function Camera.Interface.is(object: any): boolean
 	if not object or type(object) ~= "table" then
 		return false
@@ -190,19 +213,20 @@ function Camera.Interface.is(object: any): boolean
 	return metatable and metatable.__type == Camera.Type
 end
 
---[[
+--[=[
+	@function get
+	@within Camera Object
+
+	@param name string
+
+	@return Camera Object?
+
 	Get a camera object from it's camera name
-
-	### Parameters
-	- **name**: *the name of the camera you're trying to retrieve*
-
-	---
-	Example:
 
 	```lua
 		CameraProfile.Camera.get("DefaultCamera")
 	```
-]]
+]=]
 function Camera.Interface.get(name: string): CameraObject?
 	return Camera.Instances[name]
 end
