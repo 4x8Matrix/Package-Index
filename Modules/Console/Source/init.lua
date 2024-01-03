@@ -203,7 +203,7 @@ function Console.Prototype:Critical(...): ()
 end
 
 --[=[
-	@method Assert
+	@method Error
 	@within Console
 
 	@param message ...
