@@ -573,6 +573,8 @@ end
 	@function newOrphaned
 	@within Console
 
+	@since 2.0.3
+
 	@param logId string?
 	@param schema string?
 
