@@ -573,7 +573,7 @@ end
 	@function newOrphaned
 	@within Console
 
-	@since 2.0.3
+	@since unreleased
 
 	@param logId string?
 	@param schema string?
@@ -603,10 +603,6 @@ function Console.Interface.newOrphaned(logId: string?, schema: string?): Console
 			return obj:ToString()
 		end,
 	})
-
-	if logId then
-		Console.Instances[self.id] = self
-	end
 
 	return self
 end
