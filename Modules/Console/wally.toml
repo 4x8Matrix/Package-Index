@@ -1,6 +1,6 @@
 [package]
 name = "4x8matrix/console"
-version = "2.0.3-rc.0"
+version = "2.0.3"
 realm = "shared"
 registry = "https://github.com/upliftgames/wally-index"
 licence = "MIT"
@@ -9,7 +9,7 @@ authors = ["AsynchronousMatrix"]
 description = "A Roblox resource to simplify & enhance the Roblox Console/Output"
 
 exclude = ["**"]
-include = ["Source", "Source/*", "default.project.json"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
 
 [dev-dependencies]
 TestEz = "roblox/testez@0.4.1"
