@@ -1,4 +1,4 @@
---[[
+--[=[
 	@class Runtime
 
 	Runtime is a simple wally package that helps to "initialize" core game modules. Ideally helping to cut down the "loader" script size and improve the
@@ -6,7 +6,7 @@
 
 	This package was inspired by sleitnicks 'Loader' class, please go check it out!
 		- https://sleitnick.github.io/RbxUtil/api/Loader
-]]
+]=]
 local Runtime = {}
 
 Runtime.Public = {}
