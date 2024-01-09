@@ -9,7 +9,7 @@ authors = []
 description = "A simple package to help load modules in during Roblox runtime."
 
 exclude = ["**"]
-include = ["Source", "Source/*", "default.project.json"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
 
 [dev-dependencies]
 
