@@ -31,13 +31,6 @@
 			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 
-		{
-			"label": "[🚀 - Nextra]: Start Documentation Server",
-			"type": "shell",
-			"command": "pnpm run dev",
-			"group": { "kind": "build" }
-		},
-
 		// Project Development
 		{
 			"label": "[🎈 - Rojo]: Start Rojo Server for a Project",
@@ -71,12 +64,5 @@
 			"group": { "kind": "build" },
 			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
-
-		{
-			"label": "[🚨 - Moonwave]: Build documentation site",
-			"type": "shell",
-			"command": "lune --setup",
-			"group": { "kind": "build" }
-		}
 	]
 }
