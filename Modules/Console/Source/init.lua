@@ -593,7 +593,7 @@ end
 	@function newOrphaned
 	@within Console
 
-	@since unreleased
+	@since since 2.0.4
 
 	@param logId string?
 	@param schema string?
