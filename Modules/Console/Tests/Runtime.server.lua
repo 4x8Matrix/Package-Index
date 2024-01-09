@@ -11,7 +11,7 @@ if EXECUTE_PROJECT_TESTEZ_TESTS then
 	print("[TestRunner]: TestEZ Running, please be patient if you're running tests on a LIVE environment.")
 
 	TestEz.TestBootstrap:run({
-		ReplicatedStorage.Packages.Console
+		ReplicatedStorage.Packages.Console,
 	}, Reporter)
 
 	Reporter:Print()

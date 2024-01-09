@@ -18,7 +18,7 @@
 				"$className": "Folder",
 				"$path": "Packages",
 
-				"State": {
+				"Console": {
 					"$path": "Source"
 				}
 			},

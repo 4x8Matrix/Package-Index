@@ -4,6 +4,7 @@ local Signal = require(script.Parent.Signal)
 
 local DEFAULT_LOGGING_SCHEMA = "[%s][%s] :: %s"
 local MAXIMUM_CACHED_LOGS = 500
+local ARBITRARY_LARGE_NUMBER = 9999999
 local PRETTY_TABLE_TAB = string.rep("\t", (RunService:IsStudio() and 1) or 5)
 
 --[=[
@@ -180,7 +181,7 @@ end
 ]=]
 function Console.Prototype:Critical(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
-		self.schema or Console.Schema,
+		self.schema,
 		self.id,
 		"critical",
 		Console.Functions:FormatVaradicArguments(...)
@@ -191,15 +192,21 @@ function Console.Prototype:Critical(...): ()
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Console.Interface.LogLevel.Critical or Console.LogLevel > Console.Interface.LogLevel.Critical then
-		task.cancel(coroutine.running())
+	local logLevel = if self.level > Console.LogLevel or self.orphaned then self.level else Console.LogLevel
 
-		return
+	if logLevel > Console.Interface.LogLevel.Critical then
+		local thread = coroutine.running()
+
+		task.defer(function()
+			task.cancel(thread)
+		end)
+
+		return coroutine.yield()
 	end
 
 	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
-	error(outputMessage, 2)
+	error(outputMessage, ARBITRARY_LARGE_NUMBER)
 end
 
 --[=[
@@ -218,7 +225,7 @@ end
 ]=]
 function Console.Prototype:Error(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
-		self.schema or Console.Schema,
+		self.schema,
 		self.id,
 		"error",
 		Console.Functions:FormatVaradicArguments(...)
@@ -229,15 +236,21 @@ function Console.Prototype:Error(...): ()
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Console.Interface.LogLevel.Error or Console.LogLevel > Console.Interface.LogLevel.Error then
-		task.cancel(coroutine.running())
+	local logLevel = if self.level > Console.LogLevel or self.orphaned then self.level else Console.LogLevel
 
-		return
+	if logLevel > Console.Interface.LogLevel.Error then
+		local thread = coroutine.running()
+
+		task.defer(function()
+			task.cancel(thread)
+		end)
+
+		return coroutine.yield()
 	end
 
 	Console.Interface.onMessageOut:Fire(self.id or "<unknown>", outputMessage)
 
-	error(outputMessage, 2)
+	error(outputMessage, ARBITRARY_LARGE_NUMBER)
 end
 
 --[=[
@@ -256,7 +269,7 @@ end
 ]=]
 function Console.Prototype:Warn(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
-		self.schema or Console.Schema,
+		self.schema,
 		self.id,
 		"warn",
 		Console.Functions:FormatVaradicArguments(...)
@@ -267,7 +280,9 @@ function Console.Prototype:Warn(...): ()
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Console.Interface.LogLevel.Warn or Console.LogLevel > Console.Interface.LogLevel.Warn then
+	local logLevel = if self.level > Console.LogLevel or self.orphaned then self.level else Console.LogLevel
+
+	if logLevel > Console.Interface.LogLevel.Warn then
 		return
 	end
 
@@ -292,7 +307,7 @@ end
 ]=]
 function Console.Prototype:Log(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
-		self.schema or Console.Schema,
+		self.schema,
 		self.id,
 		"log",
 		Console.Functions:FormatVaradicArguments(...)
@@ -303,7 +318,9 @@ function Console.Prototype:Log(...): ()
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Console.Interface.LogLevel.Log or Console.LogLevel > Console.Interface.LogLevel.Log then
+	local logLevel = if self.level > Console.LogLevel or self.orphaned then self.level else Console.LogLevel
+
+	if logLevel > Console.Interface.LogLevel.Log then
 		return
 	end
 
@@ -328,7 +345,7 @@ end
 ]=]
 function Console.Prototype:Debug(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
-		self.schema or Console.Schema,
+		self.schema,
 		self.id,
 		"debug",
 		Console.Functions:FormatVaradicArguments(...)
@@ -339,7 +356,9 @@ function Console.Prototype:Debug(...): ()
 		table.remove(self.logs, MAXIMUM_CACHED_LOGS)
 	end
 
-	if self.level > Console.Interface.LogLevel.Debug or Console.LogLevel > Console.Interface.LogLevel.Debug then
+	local logLevel = if self.level > Console.LogLevel or self.orphaned then self.level else Console.LogLevel
+
+	if logLevel > Console.Interface.LogLevel.Debug then
 		return
 	end
 
@@ -551,8 +570,9 @@ function Console.Interface.new(logId: string?, schema: string?): Console
 	local self = setmetatable({
 		id = logId,
 		level = Console.Interface.LogLevel.Debug,
-		schema = schema,
+		schema = schema or Console.Schema,
 		enabled = true,
+		orphaned = false,
 		logs = {},
 	}, {
 		__index = Console.Prototype,
@@ -593,8 +613,9 @@ function Console.Interface.newOrphaned(logId: string?, schema: string?): Console
 	local self = setmetatable({
 		id = logId,
 		level = Console.Interface.LogLevel.Debug,
-		schema = schema,
+		schema = schema or DEFAULT_LOGGING_SCHEMA,
 		enabled = true,
+		orphaned = true,
 		logs = {},
 	}, {
 		__index = Console.Prototype,
