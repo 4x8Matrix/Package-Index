@@ -3,8 +3,8 @@ name = "4x8matrix/project"
 version = "0.1.0"
 realm = "shared"
 registry = "https://github.com/Roblox-Devs-Dubit/wally-index"
-licence = ""
-authors = []
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
 
 description = ""
 
