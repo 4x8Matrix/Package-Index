@@ -1,8 +1,8 @@
 [package]
 name = "4x8matrix/runtime"
-version = "0.1.0"
+version = "0.1.0-test"
 realm = "shared"
-registry = "https://github.com/Roblox-Devs-Dubit/wally-index"
+registry = "https://github.com/UpliftGames/wally-index"
 licence = "MIT"
 authors = ["AsynchronousMatrix"]
 
