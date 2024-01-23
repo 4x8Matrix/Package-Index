@@ -1,6 +1,6 @@
 [package]
 name = "4x8matrix/state"
-version = "1.2.0"
+version = "1.2.2"
 realm = "shared"
 registry = "https://github.com/upliftgames/wally-index"
 licence = "MIT"
