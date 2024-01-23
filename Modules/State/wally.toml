@@ -9,7 +9,7 @@ authors = ["AsynchronousMatrix"]
 description = "A simple module to wrap around any datatype & provide an interface for manipulating that value."
 
 exclude = ["**"]
-include = ["Source", "Source/*", "default.project.json"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
 
 [dev-dependencies]
 TestEz = "roblox/testez@0.4.1"
