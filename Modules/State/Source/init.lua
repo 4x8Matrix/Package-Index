@@ -293,9 +293,15 @@ end
 
 	@param callbackFn (oldValue: any, newValue: any) -> ()
 
+	@since 1.2.2
+
 	@return RBXScriptConnection
 
-	Quick QoL function to observe any changes made to the states value
+	Quick QoL function to observe any changes made to the states value, this will invok the callback function with the current value as soon as an :Observe call has been made.
+
+	<Callout emoji="⚠️">
+		Be cautious when refering to the RBXScriptConnection `:Observe` returns, as the first callback function will be invoked before this connection is returned!
+	</Callout>
 
 	```lua
 		local Value = State.new(0)
@@ -306,7 +312,7 @@ end
 	```
 ]=]
 function State.Prototype:Observe(callbackFn: (oldValue: any, newValue: any) -> ()): RBXScriptConnection
-	task.spawn(callbackFn, nil, self.Value)
+	task.spawn(callbackFn, self.Value, self.Value)
 
 	return self.Changed:Connect(callbackFn)
 end

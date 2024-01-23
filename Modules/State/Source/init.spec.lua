@@ -86,12 +86,67 @@ return function()
 		end)
 	end)
 
+	describe("State can Observe and react to changes", function()
+		it("Calling `:Observe` should fire on the next cycle", function()
+			local stateObject = StateModule.new(0)
+			local connection
+
+			local hasObserved = false
+
+			connection = stateObject:Observe(function()
+				hasObserved = true
+			end)
+
+			task.wait()
+
+			connection:Disconnect()
+
+			expect(hasObserved).to.equal(true)
+		end)
+
+		it("Calling `:Observe` should get the latest value", function()
+			local stateObject = StateModule.new(0)
+			local connection
+
+			local value = false
+
+			connection = stateObject:Observe(function()
+				value = stateObject.Value
+			end)
+
+			stateObject:Set(1)
+
+			task.wait()
+
+			connection:Disconnect()
+
+			expect(value).to.equal(1)
+		end)
+
+		it("Calling `:Observe` should pass the old value and the new value", function()
+			local stateObject = StateModule.new(0)
+			local connection
+
+			connection = stateObject:Observe(function(oldValue, newValue)
+				if oldValue == newValue then
+					return
+				end
+
+				expect(oldValue).to.equal(0)
+				expect(newValue).to.equal(1)
+			end)
+
+			task.wait()
+
+			stateObject:Set(1)
+			connection:Disconnect()
+		end)
+	end)
+
 	describe("State records & previous states", function()
 		it("Should be able to enable recording on a State", function()
 			expect(function()
-				StateModule.new("")
-					:SetRecordingState(true)
-					:SetRecordingState(false)
+				StateModule.new(""):SetRecordingState(true):SetRecordingState(false)
 			end).never.to.throw()
 		end)
 
