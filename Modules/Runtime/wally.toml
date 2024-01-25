@@ -1,6 +1,6 @@
 [package]
 name = "4x8matrix/runtime"
-version = "0.1.0-test"
+version = "1.0.0"
 realm = "shared"
 registry = "https://github.com/UpliftGames/wally-index"
 licence = "MIT"

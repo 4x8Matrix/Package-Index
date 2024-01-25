@@ -125,6 +125,41 @@ function Runtime.Public.CallMethodOn(self: Runtime, modules: { [any]: any }, met
 			continue
 		end
 
+		module[methodName](module, ...)
+	end
+end
+
+--[=[
+	@method CallSpawnedMethodOn
+	@within Runtime
+
+	@since 1.0.0
+
+	@param modules { { [any]: any } }
+	@param methodName string
+	@param arguments ...
+
+	A simple function that will spawn a new function to call a method on an array of tables. Useful when used in combination with `RequireDescendants`/`RequireChildren` calls.
+
+	```lua
+		local Runtime = require(ReplicatedStorage.Packages.Runtime)
+		
+		local gameConstants = {
+			...
+		}
+
+		-- require all modules under the 'Controllers' instance, call 'OnInit'
+		-- function in each module, if it exists, with the parameter of 'GameConstants!
+
+		Runtime:CallSpawnedMethodOn(Runtime:RequireChildren(script.Parent.Controllers), "OnInit", gameConstants)
+	```
+]=]
+function Runtime.Public.CallSpawnedMethodOn(self: Runtime, modules: { [any]: any }, methodName: string, ...)
+	for _, module in modules do
+		if not module[methodName] then
+			continue
+		end
+
 		task.spawn(module[methodName], module, ...)
 	end
 end
