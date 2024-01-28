@@ -1,0 +1,16 @@
+[package]
+name = "4x8matrix/windline"
+version = "0.1.0"
+realm = "shared"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["boatbomber (https://boatbomber.com)", "AsynchronousMatrix"]
+
+description = "A simple re-upload of the 'Windline' module found in Boatbombers windshake tech demo."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
+
+[dev-dependencies]
+
+[dependencies]
