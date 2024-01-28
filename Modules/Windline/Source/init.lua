@@ -33,7 +33,7 @@ WindLines.Private.UpdateQueue = table.create(10)
 
 	@param settings { Lifetime: number?, Direction: Vector3?, Speed: number?, SpawnRate: number? }
 
-	The initiation function that'll enable the Windlines module to spawn 3d windlines/streaks <SpawnRate> times a minute.
+	The initiation function that'll enable the Windlines module to spawn 3d windlines/streaks \<SpawnRate> times a minute.
 
 	- Lifetime is set to 3 by default
 	- Direction is set to `workspace.GlobalWind` by default
