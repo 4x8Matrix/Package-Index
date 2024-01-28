@@ -58,6 +58,10 @@ function WindLines.Public.Init(self: WindLines, settings: WindLineSettings?)
 		WindLines.Private.Direction = settings.Direction or WindLines.Private.Direction
 		WindLines.Private.Speed = settings.Speed or WindLines.Private.Speed
 		WindLines.Private.SpawnRate = settings.SpawnRate or WindLines.Private.SpawnRate
+
+		if math.sign(WindLines.Private.Direction) == 0 then
+			error(`Direction vector is an empty vector, unable to create wind streaks if there's no direction.`)
+		end
 	end
 
 	----------
@@ -75,7 +79,7 @@ function WindLines.Public.Init(self: WindLines, settings: WindLineSettings?)
 
 		-- Spawn handler
 		if Clock - WindLines.Private.LastSpawned > SpawnRate then
-			WindLines.Private:Create()
+			self:Create()
 			WindLines.Private.LastSpawned = Clock
 		end
 
