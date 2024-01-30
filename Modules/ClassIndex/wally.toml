@@ -1,0 +1,18 @@
+[package]
+name = "4x8matrix/class-index"
+version = "0.1.0"
+realm = "shared"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = "A package that helps to supply metadata about classes - for instance; fetching what properties a specific class has."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
+
+[dev-dependencies]
+TestEz = "roblox/testez@0.4.1"
+EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
+
+[dependencies]

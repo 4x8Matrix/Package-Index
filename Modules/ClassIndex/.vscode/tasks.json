@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"inputs": [],
+	"tasks": [
+		// Repository Setup
+		{
+			"label": "[🚀 - Lune]: Update Roblox API dump",
+			"type": "shell",
+			"command": "lune update-dump",
+			"group": { "kind": "build" }
+		},
+	]
+}
