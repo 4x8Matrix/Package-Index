@@ -1,13 +1,13 @@
 local apiDump = require(script["generated-api-dump"])
 
---[[
+--[=[
 	@class ClassIndex
 
 	A package that enables developers to get context about specific Roblox classes, this package uses a late-ish dump of the Roblox API
 		to be able to query information such as the superclasses for a specific class, properties for specific classes and so fourth.
 
 	This package uses the [lune](https://lune-org.github.io/docs) runtime to update the 'generated-api-dump'
-]]
+]=]
 local ClassIndex = {}
 
 ClassIndex.Public = {}
