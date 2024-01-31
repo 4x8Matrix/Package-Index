@@ -14,17 +14,17 @@ ClassIndex.Public = {}
 ClassIndex.Private = {}
 
 --[=[
-	@method FetchApiDump
+	@function FetchApiDump
 	@within ClassIndex
 
-	@return RawApiDump
+	@return ApiDump
 
-	Returns the Roblox API dump the current package is using. The returned object is typed.
+	Returns the Roblox 'Api Dump' that the package is currently using.
 
 	```lua
-		local APIDump = ClassIndex.FetchApiDump()
+		local ApiDump = ClassIndex.FetchApiDump()
 
-		print(APIDump.Classes["Workspace"].Members)
+		print(ApiDump.Classes["Workspace"].Members)
 	```
 ]=]
 function ClassIndex.Public.FetchApiDump(): apiDump
@@ -32,7 +32,7 @@ function ClassIndex.Public.FetchApiDump(): apiDump
 end
 
 --[=[
-	@method FetchAllClassNames
+	@function FetchAllClasses
 	@within ClassIndex
 
 	@return { string }
@@ -47,154 +47,293 @@ end
 		end
 	```
 ]=]
-function ClassIndex.Public.FetchAllClassNames(): { string }
+function ClassIndex.Public.FetchAllClasses(): { string }
 	local classNames = {}
 
-	for _, classStruct in apiDump.Classes do
-		table.insert(classNames, classStruct.Name)
+	for className in apiDump.Classes do
+		table.insert(classNames, className)
 	end
 
 	return classNames
 end
 
 --[=[
-	@method FetchPropertiesOfClass
+	@function IsClassRegistered
 	@within ClassIndex
 
-	@param class string
+	@param className string
 
-	@return { [string]: { string } }
+	@return boolean
 
-	Returns a dictionary, containing all properties of the supplied class and all of the supplied class super classes.
+	Returns wheather the Api Dump the package is using contains metadata on a class
 
 	```lua
-		local properties = ClassIndex.FetchPropertiesOfClass("Workspace")
+		local isClassSupported = ClassIndex.IsClassRegistered("Workspace")
 
-		--[[
-			properties = {
-				["Instance"] = {
-					[1] = "Archivable",
-					[2] = "ClassName",
-					[3] = "Name",
-					[4] = "Parent",
-					[5] = "RobloxLocked",
-					[6] = "SourceAssetId"
-				},
-				["Model"] = {...},
-				["PVInstance"] = {},
-				["Workspace"] = {...},
-				["WorldRoot"] = {}
-			}
-		]]
+		if isClassSupported then
+			local workspaceMembers = ClassIndex.FetchClassMembers("Workspace")
 
-		local workspaceProperties = properties.Workspace
-		local instanceProperties = properties.Instance
-		local modelProperties = properties.Model
+			...
+		end
 	```
 ]=]
-function ClassIndex.Public.FetchPropertiesOfClass(className: string)
-	local class = apiDump.Classes[className]
-	local classProperties = {
-		[className] = {},
-	}
-
-	for _, memberStruct in class.Members do
-		if
-			memberStruct.MemberType == "Property"
-			and (memberStruct.Category == "Behavior" or memberStruct.Category == "Data")
-		then
-			if memberStruct.Tags and table.find(memberStruct.Tags, "Deprecated") then
-				continue
-			end
-
-			table.insert(classProperties[className], memberStruct.Name)
-		end
+function ClassIndex.Public.IsClassRegistered(className: string): boolean
+	if not apiDump.Classes[className] then
+		return false
 	end
 
-	local superclasses = ClassIndex.Public.FetchClassSuperClasses(className)
-
-	if #superclasses ~= 0 then
-		for _, superclass in superclasses do
-			local superclassProperties = ClassIndex.Public.FetchPropertiesOfClass(superclass)
-
-			for superclassName, superclassValue in superclassProperties do
-				classProperties[superclassName] = superclassValue
-			end
-		end
-	end
-
-	return classProperties
+	return true
 end
 
 --[=[
-	@method FetchClassSuperClasses
+	@function FetchClassMembers
 	@within ClassIndex
 
-	@param class string
+	@param className string
+	@param security string?
+	@param includeNonScriptable boolean?
 
 	@return { string }
 
-	Returns an array of all superclasses of the passed in class
+	Returns the 'Members' of a class, class members could be one of many things, ranging from;
+
+	- Methods
+	- Events
+	- Properties
 
 	```lua
-		local superclasses = ClassIndex.FetchPropertiesOfClass("Workspace")
+		local workspaceMembers = ClassIndex.FetchClassMembers("Workspace")
 
-		--[[
-			superclasses = {
-				[1] = "WorldRoot",
-				[2] = "Model",
-				[3] = "PVInstance",
-				[4] = "Instance"
-			}
-		]]
+		local workspaceMethods = {}
+		local workspaceEvents = {}
+		local workspaceProperties = {}
+
+		for _, memberName in workspaceMembers do
+			local indexType = typeof(workspaceMethods[memberName])
+
+			if indexType == "function" then
+				table.insert(workspaceMethods, memberName)
+			elseif indexType == "RbxScriptSignal" then
+				table.insert(workspaceEvents, memberName)
+			else
+				table.insert(workspaceProperties, memberName)
+			end
+		end
 	```
 ]=]
-function ClassIndex.Public.FetchClassSuperClasses(className: string)
+function ClassIndex.Public.FetchClassMembers(
+	className: string,
+	security: string?,
+	includeNonScriptable: boolean?
+): { string }
 	local class = apiDump.Classes[className]
-	local superclasses = {}
+	local classMembers = {}
 
-	local currentClass = class
-
-	while true do
-		if currentClass.Superclass == "<<<ROOT>>>" then
-			return superclasses
-		else
-			currentClass = apiDump.Classes[currentClass.Superclass]
-
-			table.insert(superclasses, currentClass.Name)
-		end
+	if not security then
+		security = "None"
 	end
+
+	for memberName, memberStruct in class.Members do
+		if memberStruct.Tags.NotScriptable and not includeNonScriptable then
+			continue
+		end
+
+		if memberStruct.Security ~= security then
+			continue
+		end
+
+		table.insert(classMembers, memberName)
+	end
+
+	return classMembers
 end
 
-export type apiDump = {
-	Classes: {
-		[string]: {
-			MemoryCategory: string,
-			Superclass: string,
-			Name: string,
+--[=[
+	@function FetchClassMemberType
+	@within ClassIndex
 
-			Members: {
-				{
-					Category: string,
-					MemberType: string,
-					ThreadSafety: string,
-					Name: string,
-					Security: {
-						Read: string?,
-						Write: string?,
-					},
-					Serialization: {
-						CanLoad: boolean?,
-						CanSave: boolean?,
-					},
-					ValueType: {
-						Category: string,
-						Name: string,
-					},
-				}?
-			},
-		},
-	},
+	@param className string
+	@param memberName string
+
+	@return string
+
+	Returns the 'MemberType' of a class member.
+
+	```lua
+		local gravityMemberType = ClassIndex.FetchClassMemberType("Workspace", "Gravity")
+
+		print(gravityMemberType) -- "Property"
+	```
+]=]
+function ClassIndex.Public.FetchClassMemberType(className: string, memberName: string): memberType
+	local class = apiDump.Classes[className]
+	local member = class.Members[memberName]
+
+	return member.MemberType
+end
+
+--[=[
+	@function FetchClassMemberTags
+	@within ClassIndex
+
+	@param className string
+	@param memberName string
+
+	@return string
+
+	Returns the tags that have been applied to a class member.
+
+	```lua
+		local gravityMemberType = ClassIndex.FetchClassMemberTags("Workspace", "Gravity")
+
+		print(gravityMemberType) -- "Property"
+	```
+]=]
+function ClassIndex.Public.FetchClassMemberTags(className: string, memberName: string): memberTags
+	local class = apiDump.Classes[className]
+	local member = class.Members[memberName]
+
+	local shallowClone = {}
+
+	for index, value in member.Tags do
+		shallowClone[index] = value
+	end
+
+	return shallowClone
+end
+
+--[=[
+	@function FetchClassMemberSecurity
+	@within ClassIndex
+
+	@param className string
+	@param memberName string
+
+	@return { Read: string, Write: string }
+
+	Returns a table containg both a Read and Write key, the value sof these keys will define if the developer has
+		access to write and read the member of that class.
+
+	```lua
+		local memberSecurity = ClassIndex.FetchClassMemberSecurity("Workspace", "Gravity")
+
+		if memberSecurity.Read == "None" then
+			local gravity = workspace.Gravity
+		end
+	```
+]=]
+function ClassIndex.Public.FetchClassMemberSecurity(
+	className: string,
+	memberName: string
+): { Read: memberSecurity, Write: memberSecurity }
+	local class = apiDump.Classes[className]
+	local member = class.Members[memberName]
+
+	local shallowClone = {}
+
+	if type(member.Security) == "table" then
+		for index, value in member.Security do
+			shallowClone[index] = value
+		end
+	else
+		shallowClone.Read = member.Security
+		shallowClone.Write = member.Security
+	end
+
+	return shallowClone
+end
+
+--[=[
+	@function FetchClassMemberThreadSafety
+	@within ClassIndex
+
+	@param className string
+	@param memberName string
+
+	@return string
+
+	Returns a string defining if the developer can access/manipulate that member when using roblox's multi threading feature.
+
+	```lua
+		local memberThreadSafe = ClassIndex.FetchClassMemberThreadSafety("Workspace", "Gravity")
+
+		if memberSecurity == "Safe" then
+			task.desynchronize()
+
+			workspace.Gravity *= 2
+
+			task.synchronize()
+		end
+	```
+]=]
+function ClassIndex.Public.FetchClassMemberThreadSafety(className: string, memberName: string): memberThreadSafety
+	local class = apiDump.Classes[className]
+	local member = class.Members[memberName]
+
+	return member.ThreadSafety
+end
+
+--[=[
+	@function FetchClassSuperclass
+	@within ClassIndex
+
+	@param className string
+
+	@return string
+
+	Returns the superclass of a given class. For etcetera, the Workspace's superclass is 'WorldRoot'!
+
+	```lua
+		local workspaceSuperclass = ClassIndex.FetchClassSuperclass("Workspace")
+
+		print(workspaceSuperclass) -- "WorldRoot"
+	```
+]=]
+function ClassIndex.Public.FetchClassSuperclass(className: string)
+	local class = apiDump.Classes[className]
+
+	return class.Superclass
+end
+
+--[=[
+	@function FetchClassSuperclasses
+	@within ClassIndex
+
+	@param className string
+
+	@return string
+
+	Returns an array containing the superclass ancestry, the last index in this array will always be `<<<ROOT>>>` since that's the
+		base class for everything under the Roblox engine.
+
+	```lua
+		local workspaceSuperclasses = ClassIndex.FetchClassSuperclasses("Workspace")
+
+		print(workspaceSuperclasses) -- { "WorldRoot", "Model", "PVInstance", "Instance", "`<<<ROOT>>>`" }
+	```
+]=]
+function ClassIndex.Public.FetchClassSuperclasses(className: string)
+	local currentClass = apiDump.Classes[className]
+	local classes = {}
+
+	while currentClass do
+		table.insert(classes, currentClass.Superclass)
+
+		currentClass = apiDump.Classes[currentClass.Superclass]
+	end
+
+	return classes
+end
+
+export type apiDump = typeof(apiDump)
+export type memberType = "Property" | "Event" | "Function" | "Data"
+export type memberSecurity = "RobloxScriptSecurity" | "PluginSecurity" | "None"
+export type memberThreadSafety = "Unsafe" | "ReadSafe" | "Safe"
+export type memberTags = {
+	["Hidden"]: boolean?,
+	["NotReplicated"]: boolean?,
+	["ReadOnly"]: boolean?,
+	["Deprecated"]: boolean?,
 }
 
 return ClassIndex.Public

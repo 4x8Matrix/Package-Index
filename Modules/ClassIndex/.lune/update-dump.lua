@@ -35,8 +35,24 @@ local function fetchLatestStudioDump(version: string)
 
 	jsonData.Enums = nil
 
-	for index, value in jsonData.Classes do
-		updatedClasses[value.Name] = value
+	for index, classStruct in jsonData.Classes do
+		local updatedMembers = {}
+
+		for _, memberStruct in classStruct.Members or {} do
+			local updatedTags = {}
+
+			for _, tagString in memberStruct.Tags or {} do
+				updatedTags[tagString] = true
+			end
+
+			memberStruct.Tags = updatedTags
+
+			updatedMembers[memberStruct.Name] = memberStruct
+		end
+
+		classStruct.Members = updatedMembers
+
+		updatedClasses[classStruct.Name] = classStruct
 	end
 
 	jsonData.Classes = updatedClasses
