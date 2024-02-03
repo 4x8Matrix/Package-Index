@@ -1,8 +1,9 @@
 # Package Index
 
-[![Build Binaries](https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml)
-[![Signal Documentation Change](https://github.com/4x8Matrix/Package-Index/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index/actions/workflows/update-documentation.yml)
-[![Build Documentation](https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml)
+<div align="center">
+  [![Build Binaries](https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml)
+  [![Build Documentation](https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml)
+</div>
 
 A simple mono-repository containing all open sourced/available packages i've uploaded to the Wally package manager
 
