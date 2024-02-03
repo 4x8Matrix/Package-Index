@@ -5,6 +5,9 @@ on:
     branches:
       - Master
 
+permissions:
+  contents: write
+
 jobs:
   update-documentation:
     runs-on: ubuntu-latest
