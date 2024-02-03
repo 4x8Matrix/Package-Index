@@ -38,4 +38,4 @@ jobs:
           git config --global user.email 'bot@noreply.github.com'
           git add .
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git commit -m "Auto-update documentation '${{ github.event.client_payload.sha }}'" && git push || echo "No changes to commit"
+          git commit -m "Auto-update package 'Binaries'" && git push || echo "No changes to commit"
