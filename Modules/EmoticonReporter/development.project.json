@@ -1,5 +1,5 @@
 {
-	"name": "console",
+	"name": "emoticon-reporter",
 	"tree": {
 		"$className": "DataModel",
 
@@ -18,7 +18,7 @@
 				"$className": "Folder",
 				"$path": "Packages",
 
-				"State": {
+				"EmoticonReporter": {
 					"$path": "Source"
 				}
 			},
