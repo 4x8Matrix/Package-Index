@@ -1,4 +1,5 @@
 local apiDump = require(script["generated-api-dump"])
+local spritesheetData = require(script["spritesheet-data"])
 
 --[=[
 	@class ClassIndex
@@ -12,6 +13,8 @@ local ClassIndex = {}
 
 ClassIndex.Public = {}
 ClassIndex.Private = {}
+
+ClassIndex.Private.SpritesheetClassMap = {}
 
 --[=[
 	@function FetchApiDump
@@ -138,14 +141,67 @@ function ClassIndex.Public.FetchClassMembers(
 			continue
 		end
 
-		if memberStruct.Security ~= security then
-			continue
+		if type(memberStruct.Security) == "string" then
+			if memberStruct.Security ~= security then
+				continue
+			end
+		else
+			if memberStruct.Security.Read ~= security then
+				continue
+			end
 		end
 
 		table.insert(classMembers, memberName)
 	end
 
 	return classMembers
+end
+
+--[=[
+	@function FetchClassIcon
+	@within ClassIndex
+
+	@param className string
+
+	@return { Image: string, ImageRectOffset: Vector2, ImageRectSize: Vector2 }
+
+	Re-implements the :GetClassIcon call seen under 'StudioService', allowing developers outside of the Plugin space to get class
+	icons.
+
+	> https://create.roblox.com/docs/reference/engine/classes/StudioService#GetClassIcon
+
+	*Curse you Roblox! Why is this locked to just plugins?!*
+
+	```lua
+		local label = Instance.new("ImageLabel")
+		
+		for property, value in ClassIndex.FetchClassIcon("Workspace") do
+			label[property] = value
+		end
+
+		...
+	```
+]=]
+function ClassIndex.Public.FetchClassIcon(
+	className: string
+): { Image: string, ImageRectOffset: Vector2, ImageRectSize: Vector2 }
+	local classImageData = spritesheetData.Content[className]
+
+	if not classImageData then
+		classImageData = spritesheetData.Content.File
+	end
+
+	--[[
+		Note for myself in the future so I don't waste hours on this..
+
+		USE THIS SITE: https://www.codeandweb.com/free-sprite-sheet-packer - thank you!
+	]]
+
+	return {
+		Image = "http://www.roblox.com/asset/?id=16231724441",
+		ImageRectOffset = Vector2.new(classImageData.x, classImageData.y),
+		ImageRectSize = Vector2.new(classImageData.w, classImageData.h),
+	}
 end
 
 --[=[
@@ -179,14 +235,16 @@ end
 	@param className string
 	@param memberName string
 
-	@return string
+	@return { Hidden: boolean?, NotReplicated: boolean?, ReadOnly: boolean?, Deprecated: boolean? }
 
 	Returns the tags that have been applied to a class member.
 
 	```lua
-		local gravityMemberType = ClassIndex.FetchClassMemberTags("Workspace", "Gravity")
+		local gravityMemberTags = ClassIndex.FetchClassMemberTags("Workspace", "Gravity")
 
-		print(gravityMemberType) -- "Property"
+		if gravityMemberTags.Deprecated then
+			print("Oh noo! Where did Gravity go?!")
+		end
 	```
 ]=]
 function ClassIndex.Public.FetchClassMemberTags(className: string, memberName: string): memberTags
