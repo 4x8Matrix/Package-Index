@@ -1,5 +1,8 @@
 # Package Index
 
+[![build-binaries](https://github.com/4x8Matrix/Package-Index/workflows/build-binaries.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml)
+[![build-documentation](https://github.com/4x8Matrix/Package-Index-Site/workflows/on-workflow-update.yml/badge.svg)](https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml)
+
 A simple mono-repository containing all open sourced/available packages i've uploaded to the Wally package manager
 
 - https://wally.run/
