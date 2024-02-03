@@ -16,3 +16,17 @@ jobs:
           repository: 4x8Matrix/Package-Index-Site
           event-type: update-documentation
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run Linter
+        run: lune update-binaries
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'Git bot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add .
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git commit -m "Auto-update documentation '${{ github.event.client_payload.sha }}'" && git push || echo "No changes to commit"
