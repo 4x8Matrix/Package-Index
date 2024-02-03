@@ -2,7 +2,7 @@
 
 <div align="center">
   <div align="center"><img src="https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml/badge.svg" width="20%" ></div>
-  <div align="center"><img src="https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml/badge.svg" width="20%" ></div>
+  <div align="center"><img src="https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml/badge.svg" width="10%" ></div>
 </div>
 
 A simple mono-repository containing all open sourced/available packages i've uploaded to the Wally package manager
