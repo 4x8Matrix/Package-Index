@@ -1,9 +1,9 @@
 # Package Index
 
-<div align="center" float="left">
+<p align="center" float="left">
   <div align="center"><img src="https://github.com/4x8Matrix/Package-Index-Site/actions/workflows/on-workflow-update.yml/badge.svg" ></div>
   <div align="center"><img src="https://github.com/4x8Matrix/Package-Index/actions/workflows/build-binaries.yml/badge.svg" ></div>
-</div>
+</p>
 
 A simple mono-repository containing all open sourced/available packages i've uploaded to the Wally package manager
 
