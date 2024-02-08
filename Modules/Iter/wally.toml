@@ -1,0 +1,18 @@
+[package]
+name = "4x8matrix/project"
+version = "0.1.0"
+realm = "shared"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = ""
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
+
+[dev-dependencies]
+TestEz = "roblox/testez@0.4.1"
+EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
+
+[dependencies]
