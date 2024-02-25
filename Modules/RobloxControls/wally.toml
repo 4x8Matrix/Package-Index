@@ -1,0 +1,19 @@
+[package]
+name = "4x8matrix/roblox-controls"
+version = "0.1.0"
+realm = "shared"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = "A simple luau package to manipulate Roblox CoreGui & Controls."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
+
+[dev-dependencies]
+TestEz = "roblox/testez@0.4.1"
+EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
+
+[dependencies]
+Promise = "evaera/promise@4.x.x"
