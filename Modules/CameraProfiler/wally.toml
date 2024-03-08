@@ -1,6 +1,6 @@
 [package]
 name = "4x8matrix/camera-profiler"
-version = "1.0.5"
+version = "1.0.6"
 realm = "shared"
 registry = "https://github.com/upliftgames/wally-index"
 licence = "MIT"
@@ -9,7 +9,7 @@ authors = ["AsynchronousMatrix"]
 description = "A simple OOP module to allow developers to create camera profiles."
 
 exclude = ["**"]
-include = ["Source", "Source/*", "default.project.json"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
 
 [dev-dependencies]
 TestEz = "roblox/testez@0.4.1"
