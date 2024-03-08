@@ -1,6 +1,6 @@
 [package]
 name = "4x8matrix/class-index"
-version = "1.0.0"
+version = "2.0.0"
 realm = "shared"
 registry = "https://github.com/UpliftGames/wally-index"
 licence = "MIT"

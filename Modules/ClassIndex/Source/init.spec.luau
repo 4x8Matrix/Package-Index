@@ -2,7 +2,7 @@ return function()
 	local ClassIndex = require(script.Parent)
 
 	it("Should be able to access the raw API dump", function()
-		local apiDump = ClassIndex.FetchApiDump()
+		local apiDump = ClassIndex.GetApiDump()
 
 		expect(apiDump).never.to.equal(nil)
 		expect(apiDump.Classes).never.to.equal(nil)
@@ -10,7 +10,7 @@ return function()
 	end)
 
 	it("Should be able to fetch all classes from the raw API dump", function()
-		local classArray = ClassIndex.FetchAllClasses()
+		local classArray = ClassIndex.GetAllClasses()
 
 		expect(#classArray).never.to.equal(0)
 		expect(table.find(classArray, "Workspace")).never.to.equal(nil)
@@ -22,7 +22,7 @@ return function()
 	end)
 
 	it("Should be able to query class members", function()
-		local classMembers = ClassIndex.FetchClassMembers("Workspace")
+		local classMembers = ClassIndex.GetClassMembers("Workspace")
 
 		expect(#classMembers).never.to.equal(0)
 
@@ -32,38 +32,38 @@ return function()
 	end)
 
 	it("Should be able to fetch the member type from a class", function()
-		local gravityMemberType = ClassIndex.FetchClassMemberType("Workspace", "Gravity")
+		local gravityMemberType = ClassIndex.GetClassMemberType("Workspace", "Gravity")
 
 		expect(gravityMemberType).to.equal("Property")
 	end)
 
 	it("Should be able to fetch the tags for a member of a class", function()
-		local streamingMinRadiusTags = ClassIndex.FetchClassMemberTags("Workspace", "StreamingMinRadius")
+		local streamingMinRadiusTags = ClassIndex.GetClassMemberTags("Workspace", "StreamingMinRadius")
 
 		expect(streamingMinRadiusTags.NotScriptable).to.equal(true)
 	end)
 
 	it("Should be able to fetch the security for a member of a class", function()
-		local streamingEnabledSecurity = ClassIndex.FetchClassMemberSecurity("Workspace", "StreamingEnabled")
+		local streamingEnabledSecurity = ClassIndex.GetClassMemberSecurity("Workspace", "StreamingEnabled")
 
 		expect(streamingEnabledSecurity.Read).to.equal("None")
 		expect(streamingEnabledSecurity.Write).to.equal("PluginSecurity")
 	end)
 
 	it("Should be able to fetch the thread safety for a member of a class", function()
-		local streamingEnabledThreadSafety = ClassIndex.FetchClassMemberThreadSafety("Workspace", "StreamingEnabled")
+		local streamingEnabledThreadSafety = ClassIndex.GetClassMemberThreadSafety("Workspace", "StreamingEnabled")
 
 		expect(streamingEnabledThreadSafety).to.equal("ReadSafe")
 	end)
 
 	it("Should be able to query class superclass", function()
-		local workspaceSuperClass = ClassIndex.FetchClassSuperclass("Workspace")
+		local workspaceSuperClass = ClassIndex.GetClassSuperclass("Workspace")
 
 		expect(workspaceSuperClass).to.equal("WorldRoot")
 	end)
 
 	it("Should be able to query class superclasses", function()
-		local workspaceSuperClasses = ClassIndex.FetchClassSuperclasses("Workspace")
+		local workspaceSuperClasses = ClassIndex.GetClassSuperclasses("Workspace")
 
 		expect(#workspaceSuperClasses).never.to.equal(0)
 

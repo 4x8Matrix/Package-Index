@@ -17,7 +17,7 @@ ClassIndex.Private = {}
 ClassIndex.Private.SpritesheetClassMap = {}
 
 --[=[
-	@function FetchApiDump
+	@function GetApiDump
 	@within ClassIndex
 
 	@return ApiDump
@@ -25,17 +25,17 @@ ClassIndex.Private.SpritesheetClassMap = {}
 	Returns the Roblox 'Api Dump' that the package is currently using.
 
 	```lua
-		local ApiDump = ClassIndex.FetchApiDump()
+		local ApiDump = ClassIndex.GetApiDump()
 
 		print(ApiDump.Classes["Workspace"].Members)
 	```
 ]=]
-function ClassIndex.Public.FetchApiDump(): apiDump
+function ClassIndex.Public.GetApiDump(): apiDump
 	return apiDump
 end
 
 --[=[
-	@function FetchAllClasses
+	@function GetAllClasses
 	@within ClassIndex
 
 	@return { string }
@@ -43,14 +43,14 @@ end
 	Returns an array of all classes in the Roblox Engine
 
 	```lua
-		local classNames = ClassIndex.FetchAllClassNames()
+		local classNames = ClassIndex.GetAllClassNames()
 
 		for _, className in classNames do
 			print(className)
 		end
 	```
 ]=]
-function ClassIndex.Public.FetchAllClasses(): { string }
+function ClassIndex.Public.GetAllClasses(): { string }
 	local classNames = {}
 
 	for className in apiDump.Classes do
@@ -74,7 +74,7 @@ end
 		local isClassSupported = ClassIndex.IsClassRegistered("Workspace")
 
 		if isClassSupported then
-			local workspaceMembers = ClassIndex.FetchClassMembers("Workspace")
+			local workspaceMembers = ClassIndex.GetClassMembers("Workspace")
 
 			...
 		end
@@ -89,7 +89,7 @@ function ClassIndex.Public.IsClassRegistered(className: string): boolean
 end
 
 --[=[
-	@function FetchClassMembers
+	@function GetClassMembers
 	@within ClassIndex
 
 	@param className string
@@ -105,7 +105,7 @@ end
 	- Properties
 
 	```lua
-		local workspaceMembers = ClassIndex.FetchClassMembers("Workspace")
+		local workspaceMembers = ClassIndex.GetClassMembers("Workspace")
 
 		local workspaceMethods = {}
 		local workspaceEvents = {}
@@ -124,7 +124,7 @@ end
 		end
 	```
 ]=]
-function ClassIndex.Public.FetchClassMembers(
+function ClassIndex.Public.GetClassMembers(
 	className: string,
 	security: string?,
 	includeNonScriptable: boolean?
@@ -158,7 +158,7 @@ function ClassIndex.Public.FetchClassMembers(
 end
 
 --[=[
-	@function FetchClassIcon
+	@function GetClassIcon
 	@within ClassIndex
 
 	@param className string
@@ -175,14 +175,14 @@ end
 	```lua
 		local label = Instance.new("ImageLabel")
 		
-		for property, value in ClassIndex.FetchClassIcon("Workspace") do
+		for property, value in ClassIndex.GetClassIcon("Workspace") do
 			label[property] = value
 		end
 
 		...
 	```
 ]=]
-function ClassIndex.Public.FetchClassIcon(
+function ClassIndex.Public.GetClassIcon(
 	className: string
 ): { Image: string, ImageRectOffset: Vector2, ImageRectSize: Vector2 }
 	local classImageData = spritesheetData.Content[className]
@@ -205,7 +205,7 @@ function ClassIndex.Public.FetchClassIcon(
 end
 
 --[=[
-	@function FetchClassMemberType
+	@function GetClassMemberType
 	@within ClassIndex
 
 	@param className string
@@ -216,12 +216,12 @@ end
 	Returns the 'MemberType' of a class member.
 
 	```lua
-		local gravityMemberType = ClassIndex.FetchClassMemberType("Workspace", "Gravity")
+		local gravityMemberType = ClassIndex.GetClassMemberType("Workspace", "Gravity")
 
 		print(gravityMemberType) -- "Property"
 	```
 ]=]
-function ClassIndex.Public.FetchClassMemberType(className: string, memberName: string): memberType
+function ClassIndex.Public.GetClassMemberType(className: string, memberName: string): memberType
 	local class = apiDump.Classes[className]
 	local member = class.Members[memberName]
 
@@ -229,7 +229,7 @@ function ClassIndex.Public.FetchClassMemberType(className: string, memberName: s
 end
 
 --[=[
-	@function FetchClassMemberTags
+	@function GetClassMemberTags
 	@within ClassIndex
 
 	@param className string
@@ -240,14 +240,14 @@ end
 	Returns the tags that have been applied to a class member.
 
 	```lua
-		local gravityMemberTags = ClassIndex.FetchClassMemberTags("Workspace", "Gravity")
+		local gravityMemberTags = ClassIndex.GetClassMemberTags("Workspace", "Gravity")
 
 		if gravityMemberTags.Deprecated then
 			print("Oh noo! Where did Gravity go?!")
 		end
 	```
 ]=]
-function ClassIndex.Public.FetchClassMemberTags(className: string, memberName: string): memberTags
+function ClassIndex.Public.GetClassMemberTags(className: string, memberName: string): memberTags
 	local class = apiDump.Classes[className]
 	local member = class.Members[memberName]
 
@@ -261,7 +261,7 @@ function ClassIndex.Public.FetchClassMemberTags(className: string, memberName: s
 end
 
 --[=[
-	@function FetchClassMemberSecurity
+	@function GetClassMemberSecurity
 	@within ClassIndex
 
 	@param className string
@@ -273,14 +273,14 @@ end
 		access to write and read the member of that class.
 
 	```lua
-		local memberSecurity = ClassIndex.FetchClassMemberSecurity("Workspace", "Gravity")
+		local memberSecurity = ClassIndex.GetClassMemberSecurity("Workspace", "Gravity")
 
 		if memberSecurity.Read == "None" then
 			local gravity = workspace.Gravity
 		end
 	```
 ]=]
-function ClassIndex.Public.FetchClassMemberSecurity(
+function ClassIndex.Public.GetClassMemberSecurity(
 	className: string,
 	memberName: string
 ): { Read: memberSecurity, Write: memberSecurity }
@@ -302,7 +302,7 @@ function ClassIndex.Public.FetchClassMemberSecurity(
 end
 
 --[=[
-	@function FetchClassMemberThreadSafety
+	@function GetClassMemberThreadSafety
 	@within ClassIndex
 
 	@param className string
@@ -313,7 +313,7 @@ end
 	Returns a string defining if the developer can access/manipulate that member when using roblox's multi threading feature.
 
 	```lua
-		local memberThreadSafe = ClassIndex.FetchClassMemberThreadSafety("Workspace", "Gravity")
+		local memberThreadSafe = ClassIndex.GetClassMemberThreadSafety("Workspace", "Gravity")
 
 		if memberSecurity == "Safe" then
 			task.desynchronize()
@@ -324,7 +324,7 @@ end
 		end
 	```
 ]=]
-function ClassIndex.Public.FetchClassMemberThreadSafety(className: string, memberName: string): memberThreadSafety
+function ClassIndex.Public.GetClassMemberThreadSafety(className: string, memberName: string): memberThreadSafety
 	local class = apiDump.Classes[className]
 	local member = class.Members[memberName]
 
@@ -332,7 +332,7 @@ function ClassIndex.Public.FetchClassMemberThreadSafety(className: string, membe
 end
 
 --[=[
-	@function FetchClassSuperclass
+	@function GetClassSuperclass
 	@within ClassIndex
 
 	@param className string
@@ -342,19 +342,19 @@ end
 	Returns the superclass of a given class. For etcetera, the Workspace's superclass is 'WorldRoot'!
 
 	```lua
-		local workspaceSuperclass = ClassIndex.FetchClassSuperclass("Workspace")
+		local workspaceSuperclass = ClassIndex.GetClassSuperclass("Workspace")
 
 		print(workspaceSuperclass) -- "WorldRoot"
 	```
 ]=]
-function ClassIndex.Public.FetchClassSuperclass(className: string)
+function ClassIndex.Public.GetClassSuperclass(className: string)
 	local class = apiDump.Classes[className]
 
 	return class.Superclass
 end
 
 --[=[
-	@function FetchClassSuperclasses
+	@function GetClassSuperclasses
 	@within ClassIndex
 
 	@param className string
@@ -365,12 +365,12 @@ end
 		base class for everything under the Roblox engine.
 
 	```lua
-		local workspaceSuperclasses = ClassIndex.FetchClassSuperclasses("Workspace")
+		local workspaceSuperclasses = ClassIndex.GetClassSuperclasses("Workspace")
 
 		print(workspaceSuperclasses) -- { "WorldRoot", "Model", "PVInstance", "Instance", "`<<<ROOT>>>`" }
 	```
 ]=]
-function ClassIndex.Public.FetchClassSuperclasses(className: string)
+function ClassIndex.Public.GetClassSuperclasses(className: string)
 	local currentClass = apiDump.Classes[className]
 	local classes = {}
 
