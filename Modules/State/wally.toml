@@ -16,4 +16,4 @@ TestEz = "roblox/testez@0.4.1"
 EmoticonReporter = "4x8matrix/emoticon-reporter@1.0.0"
 
 [dependencies]
-Signal = "sleitnick/signal@1.5.0"
+Signal = "sleitnick/signal@1.x.x"
