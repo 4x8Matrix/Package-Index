@@ -140,10 +140,21 @@ function Console.Functions:FormatVaradicArguments(...)
 	return string.format(message, table.unpack(args))
 end
 
-function Console.Functions:FormatMessageSchema(schema: string, source: string, ...)
+function Console.Functions:FormatMessageSchema(traceback: boolean, schema: string, source: string, ...)
 	source = source or debug.info(2, "s")
 
-	return string.format(schema, source, ...)
+	local additionalSource = ""
+
+	if traceback then
+		local tracebackData = debug.traceback("", 3)
+
+		additionalSource = "\n"
+			.. string.format(schema, source, `traceback`, `begin`)
+			.. tracebackData
+			.. string.format(schema, source, `traceback`, `end`)
+	end
+
+	return string.format(schema, source, ...) .. additionalSource
 end
 
 --[=[
@@ -184,6 +195,7 @@ end
 ]=]
 function Console.Prototype:Critical(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.traceback,
 		self.schema,
 		self.id,
 		"critical",
@@ -228,6 +240,7 @@ end
 ]=]
 function Console.Prototype:Error(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.traceback,
 		self.schema,
 		self.id,
 		"error",
@@ -272,6 +285,7 @@ end
 ]=]
 function Console.Prototype:Warn(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.traceback,
 		self.schema,
 		self.id,
 		"warn",
@@ -310,6 +324,7 @@ end
 ]=]
 function Console.Prototype:Log(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.traceback,
 		self.schema,
 		self.id,
 		"log",
@@ -348,6 +363,7 @@ end
 ]=]
 function Console.Prototype:Debug(...): ()
 	local outputMessage = Console.Functions:FormatMessageSchema(
+		self.traceback,
 		self.schema,
 		self.id,
 		"debug",
@@ -406,6 +422,35 @@ end
 ]=]
 function Console.Prototype:SetLogLevel(logLevel: number): ()
 	self.level = logLevel
+end
+
+--[=[
+	@method SetTracebackEnabled
+	@within Console
+
+	@param traceback boolean
+	
+	@since 2.0.5
+
+	Enable/Disable traceback logging for the 'Console' object
+
+	```lua
+		local reporter = Console.new("🔥 CoolReporter")
+
+		reporter:SetTracebackEnabled(true)
+		reporter:Log("Hello, World") --[[
+			["🔥 CoolReporter"]["log"]: "Hello, World"
+			["🔥 CoolReporter"]["traceback"]: begin
+			Script 'ServerScriptService.Place.Services.GameLoopService', Line 30 - function OnGameStateBlocking
+			Script 'ServerScriptService.Place.Services.GameLoopService', Line 48
+			Script 'ReplicatedStorage.Packages._Index.sleitnick_signal@1.5.0.signal', Line 56 - function acquireRunnerThreadAndCallEventHandler
+			Script 'ReplicatedStorage.Packages._Index.sleitnick_signal@1.5.0.signal', Line 67 - function runEventHandlerInFreeThread
+			["🔥 CoolReporter"]["traceback"]: end
+		]]
+	```
+]=]
+function Console.Prototype:SetTracebackEnabled(traceback: boolean): ()
+	self.traceback = traceback or false
 end
 
 --[=[
@@ -574,6 +619,7 @@ function Console.Interface.new(logId: string?, schema: string?): Console
 		id = logId,
 		level = Console.Interface.LogLevel.Debug,
 		schema = schema or Console.Schema,
+		traceback = false,
 		enabled = true,
 		orphaned = false,
 		logs = {},
