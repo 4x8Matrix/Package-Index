@@ -125,7 +125,10 @@ function Console.Functions:FormatVaradicArguments(...)
 	local messageType = typeof(args[1])
 
 	if messageType == "string" then
-		message = table.remove(args, 1)
+		local sourceString = table.remove(args, 1)
+		local filteredString = string.gsub(sourceString, "%%", "%%%%")
+
+		message = filteredString
 	end
 
 	for index, value in args do
