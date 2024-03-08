@@ -430,7 +430,7 @@ end
 
 	@param traceback boolean
 	
-	@since 2.0.5
+	@since 2.1.0
 
 	Enable/Disable traceback logging for the 'Console' object
 
