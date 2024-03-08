@@ -155,7 +155,7 @@ function State.Prototype:Set(value: any): State
 	end
 
 	self.Value = value
-	self.Changed:Fire(oldValue, value)
+	self.Changed:Fire(value, oldValue)
 
 	return self
 end
