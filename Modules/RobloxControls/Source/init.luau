@@ -149,13 +149,13 @@ function RobloxControls.Public.DisableRespawning(self: RobloxControls)
 end
 
 --[=[
-	@method DisableRespawning
+	@method EnableRespawning
 	@within RobloxControls
 
 	Convenience method for enabling respawning
 
 	```lua
-		RobloxControls:DisableRespawning()
+		RobloxControls:EnableRespawning()
 	```
 ]=]
 function RobloxControls.Public.EnableRespawning(self: RobloxControls)
@@ -203,7 +203,7 @@ function RobloxControls.Public.EnableCoreGui(self: RobloxControls)
 end
 
 --[=[
-	@method EnableCoreGui
+	@method DisableCoreGui
 	@within RobloxControls
 
 	Disables the CoreGui specified through the `:SetDefaultCoreGui` method.
@@ -240,7 +240,7 @@ function RobloxControls.Public.DisableCharacterInput(self: RobloxControls)
 end
 
 --[=[
-	@method DisableCharacterInput
+	@method EnableCharacterInput
 	@within RobloxControls
 
 	Enables player-character input.
