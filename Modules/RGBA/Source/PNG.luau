@@ -174,6 +174,8 @@ end
 	@method ToString
 	@within PNGObject
 
+	@return string
+
 	Returns the binary blob for the PNG file, this is essentially the content you'd find under a `object.png` file.
 ]=]
 function PNG.Prototype.ToString(self: PNG)
@@ -186,6 +188,8 @@ end
 
 	@param size Vector2
 	@param rgba { [number]: number }
+
+	@return PNGObject
 
 	Constructor function that creates a new PNG file, when this function is called, the binary data for the RGBA array will
 		be generated alongside this call.
