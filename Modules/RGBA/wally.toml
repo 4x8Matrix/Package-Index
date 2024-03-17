@@ -1,0 +1,16 @@
+[package]
+name = "4x8matrix/rgba"
+version = "0.1.0"
+realm = "shared"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["AsynchronousMatrix"]
+
+description = "A serialisation library to convert Roblox's flat pixel array into a image binary formats."
+
+exclude = ["**"]
+include = ["Source", "Source/*", "default.project.json", "wally.toml"]
+
+[dev-dependencies]
+
+[dependencies]
