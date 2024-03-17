@@ -1,4 +1,4 @@
---[[
+--[=[
 	@class RGBA 
 
 	RGBA is a Roblox/Luau library for encoding/decoding various image file formats, allowing developers to encode/decode roblox's
@@ -6,7 +6,7 @@
 
 	To note; I'm throwing the world 'RGBA' around a bit, by this, I mean the object Roblox returns when calling `EditableImage:ReadPixels`
 		https://create.roblox.com/docs/reference/engine/classes/EditableImage#ReadPixels
-]]
+]=]
 
 local RGBA = {}
 

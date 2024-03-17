@@ -1,4 +1,4 @@
---[[
+--[=[
 	@class PNGObject 
 
 	The PNG Object enables a developer to write Roblox's flat RGBA array into a PNG file format, allowing developers to export
@@ -22,7 +22,7 @@
 		- [David Vogel](https://github.com/Dadido3)
 
 	- https://www.w3.org/TR/png/
-]]
+]=]
 
 local DEFLATE_MAX_BLOCK_SIZE = 65535
 
