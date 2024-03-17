@@ -1,5 +1,5 @@
 --[[
-	@class PNG Object 
+	@class PNGObject 
 
 	The PNG Object enables a developer to write Roblox's flat RGBA array into a PNG file format, allowing developers to export
 		the contents of `EditableImage:ReadPixels`, which could come in handy for things such as Plugins.
@@ -172,7 +172,7 @@ end
 
 --[=[
 	@method ToString
-	@within PNG Object
+	@within PNGObject
 
 	Returns the binary blob for the PNG file, this is essentially the content you'd find under a `object.png` file.
 ]=]
@@ -182,7 +182,7 @@ end
 
 --[=[
 	@function new
-	@within PNG Object
+	@within PNGObject
 
 	@param size Vector2
 	@param rgba { [number]: number }
