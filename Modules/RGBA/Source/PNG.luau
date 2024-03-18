@@ -38,16 +38,19 @@ PNG.Prototype.UncompressedDataRemaining = 0
 PNG.Prototype.DeflateBlocksCount = 0
 PNG.Prototype.DeflateBlockFilled = -1
 PNG.Prototype.IDATSize = 0
-PNG.Prototype.Binary = { }
+PNG.Prototype.Buffer = newproxy() :: buffer
+PNG.Prototype.BufferPosition = -1
+PNG.Prototype.BufferSize = -1
 
 function PNG.Prototype.Write(self: PNG, ...)
 	for _, object in { ... } do
-		table.insert(self.Binary, string.char(object))
+		buffer.writeu8(self.Buffer, self.BufferPosition, object)
+		self.BufferPosition += 1
 	end
 end
 
 function PNG.Prototype.Destroy(self: PNG, ...)
-	table.clear(self.Binary)
+	buffer.fill(self.Buffer, 0, 0)
 end
 
 function PNG.Prototype.WriteUInt32(self: PNG, ...)
@@ -143,8 +146,8 @@ function PNG.Prototype.UpdateCRC32(self: PNG, length: number, resetCRC: boolean)
 
     self.CRC = bit32.bnot(self.CRC)
 
-	for index = #self.Binary - length + 1, #self.Binary do
-		local byte = string.byte(self.Binary[index])
+	for index = self.BufferPosition - length, self.BufferPosition - 1 do
+		local byte = buffer.readu8(self.Buffer, index)
 
 		for bitIndex = 0, 7 do  -- Inefficient bitwise implementation, instead of table-based
 			local bit = bit32.band(bit32.bxor(self.CRC, bit32.rshift(byte, bitIndex)), 1);
@@ -162,8 +165,8 @@ function PNG.Prototype.UpdateAdler32(self: PNG, length: number)
 	local s1 = bit32.band(self.Adler, 0xFFFF)
 	local s2 = bit32.rshift(self.Adler, 16)
 
-	for i = #self.Binary - length + 1, #self.Binary do
-		s1 = (s1 + string.byte(self.Binary[i])) % 65521
+	for index = self.BufferPosition - length, self.BufferPosition - 1 do
+		s1 = (s1 + buffer.readu8(self.Buffer, index)) % 65521
 		s2 = (s2 + s1) % 65521
 	end
 
@@ -179,7 +182,7 @@ end
 	Returns the binary blob for the PNG file, this is essentially the content you'd find under a `object.png` file.
 ]=]
 function PNG.Prototype.ToString(self: PNG)
-	return table.concat(self.Binary, "")
+	return buffer.tostring(self.Buffer)
 end
 
 --[=[
@@ -211,8 +214,11 @@ function PNG.Interface.new(size: Vector2, rgba: { [number]: number })
 	self.UncompressedDataRemaining = self.LineSize * self.Height
 	self.DeflateBlocksCount = math.ceil(self.UncompressedDataRemaining / DEFLATE_MAX_BLOCK_SIZE)
 	self.IDATSize = (self.DeflateBlocksCount * 5 + 6) + self.UncompressedDataRemaining
+	
+	self.BufferPosition = 0
+	self.BufferSize = self.IDATSize + 96
+	self.Buffer = buffer.create(self.BufferSize)
 
-	self.Binary = { }
 	self.CRC = 0
 	self.Adler = 1
 	
@@ -244,7 +250,7 @@ function PNG.Interface.new(size: Vector2, rgba: { [number]: number })
 	self:UpdateCRC32(31, true)
 	self:WriteUInt32(self.CRC)
 
-	-- IDAT
+	-- -- IDAT
 	self:WriteUInt32(self.IDATSize) -- size
 	self:Write(0x49, 0x44, 0x41, 0x54) -- header
 	self:Write(0x08, 0x1D) -- deflate
