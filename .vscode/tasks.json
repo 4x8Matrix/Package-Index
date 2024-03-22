@@ -19,50 +19,45 @@
 		{
 			"label": "[🚀 - Lune]: Setup Lune LSP Environment",
 			"type": "shell",
-			"command": "lune --setup",
+			"command": "just setup ${input:ProjectName} lune",
 			"group": { "kind": "build" }
 		},
 
 		{
 			"label": "[🚀 - Rojo]: Update project sourcemap",
 			"type": "shell",
-			"command": "rojo sourcemap development.project.json --output sourcemap.json && wally-package-types --sourcemap sourcemap.json Packages/",
+			"command": "just update_sourcemap ${input:ProjectName}",
 			"group": { "kind": "build" },
-			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 
 		// Project Development
 		{
 			"label": "[🎈 - Rojo]: Start Rojo Server for a Project",
 			"type": "shell",
-			"command": "rojo serve ${input:ProjectBuild}.project.json",
+			"command": "just serve ${input:ProjectName} ${input:ProjectBuild}",
 			"group": { "kind": "build" },
-			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 
 		{
 			"label": "[🎈 - Rojo]: Build Project into Roblox Place",
 			"type": "shell",
-			"command": "rojo build ${input:ProjectBuild}.project.json -o ${input:ProjectName}-Build.rbxl",
+			"command": "just build ${input:ProjectName} ${input:ProjectBuild}",
 			"group": { "kind": "build" },
-			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 
 		{
-			"label": "[🎈 - Wally]: Build Project packages",
+			"label": "[🎈 - Wally]: Install Project packages",
 			"type": "shell",
-			"command": "wally install",
+			"command": "just setup ${input:ProjectName} wally",
 			"group": { "kind": "build" },
-			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 
 		// CI Steps
 		{
 			"label": "[🚨 - Selene]: Selene Lint a project",
 			"type": "shell",
-			"command": "selene Source",
+			"command": "just lint ${input:ProjectName}",
 			"group": { "kind": "build" },
-			"options": { "cwd": "Modules/${input:ProjectName}" }
 		},
 	]
 }
